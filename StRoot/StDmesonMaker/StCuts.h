@@ -3,7 +3,7 @@
 
 // pay attention that all the pairs invariant mass cuts are applied in the code
 namespace cuts
-{
+{         
 	//event
 	const Float_t vz = 100.0;
 	const Float_t vzVpdVz = 6.0;
