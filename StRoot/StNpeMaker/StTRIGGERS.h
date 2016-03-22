@@ -1,0 +1,7 @@
+#ifndef StTRIGGERS_H
+#define StTRIGGERS_H
+
+// see prescale.cxx 
+enum trgNumbers{VPDMB,BBCMB,HT0VPDMB,HT1VPDMB,HT2,HT0BBCMBTOF0,HT1BBCMBTOF0,HT2BBCMB,BBCMBTOF0};
+
+#endif

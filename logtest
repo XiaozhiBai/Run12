@@ -1,0 +1,17 @@
+*** Float Point Exception is OFF ***
+ *** Start at Date : Mon Mar  7 21:36:33 2016
+QAInfo:You are using STAR_LEVEL : SL12d, ROOT_LEVEL : 5.22.00 and node : pdsf11 
+
+Processing StRoot/macros/run_StNpeMaker.C("Npefile.list","Npe_test.root")...
+strangeArrayNames-arrayNames-__NARRAYS__ = 0
+ loading of shared libraries done
+ Book
+sngl_file: 1 : /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_440.root
+StInfo: Read File /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_440.root Total number of events1373676
+sngl_file: 2 : /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_1077.root
+StInfo: Read File /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_1077.root Total number of events508218
+sngl_file: 3 : /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_440.root
+StInfo: Read File /global/project/projectdirs/starprod/rnc/mustafa/pp200Run12Dmesons/production/dMesons_2F38529CC397A0B03BCFEF762BC2D1DF_440.root Total number of events1373676
+
+This is the end of ROOT -- Goodbye
+

@@ -1,0 +1,27 @@
+1 Read me file  for the run12 NPE aanalysis, 
+(1) starver SL12d (data) starver SL12d_embed (embedding)
+(2) work area 
+/global/u1/x/xiao00/work/run12 
+
+2. How to run the code 
+In /global/u1/x/xiao00/work/run12
+(1) starver SL12 
+(2) cons
+(3) ./run_Npe.test.csh 
+
+3. How to sumbit job 
+(1) cd submit/
+(2) /re_submit.sh
+(3) star-submit submit.xml (still some problem about the compiler on PDSF, already cottact Jeff)
+
+4 Code under StRoot
+(1) macros/ macros  Run the main program
+(2) StEmbedding/   Read embedding save the embedding analyis tree
+(3) StPicoDstMaker/ PicoDst see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html // by xin
+(4) StDmesonMaker/ Read Pico to save  anayiss tree for the charm analyis, save all the hadron and electron candidate. // by Mustafa
+(5) StTriggerUtilities/ Trigger simulater
+(6) StNpeMaker/ Read StDmesonMaker saved analyis tree, and fill all the histogram.      // By xiaozhi
+(7) StEmbeddingReader/ read embedding analyis tree calcualte efficiency. (this calss still not reviewed by xiaozhi)  
+
+
+
