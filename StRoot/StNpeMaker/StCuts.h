@@ -50,6 +50,9 @@ namespace cuts
   const Int_t NEta =1;
   const Int_t NPhi=1;
 
+  const Float_t tofbeta=0.03;
+  const Float_t tof_Ylocal=1.8;
+  
   /* const Float_t eta_max=0.7; */
   /* const Float_t pt_min=0.2; */
   /* const Int_t nhitsFit = 20; */

@@ -40,7 +40,8 @@
 
 ClassImp(StNpeMaker)
 using namespace std;
-StNpeMaker::StNpeMaker(const char* outName){
+StNpeMaker::StNpeMaker(const char* outName)
+{
   mOutputFile = new TFile(outName, "RECREATE");
   mPrescales=prescales::Instance();
 
@@ -56,10 +57,12 @@ StNpeMaker::StNpeMaker(const char* outName){
 StNpeMaker::~StNpeMaker(){
   /*  */
 }
-void StNpeMaker::Clear(Option_t *opt) {
+void StNpeMaker::Clear(Option_t *opt)
+{
   /**/
 }
-void StNpeMaker::read(TString fileName){
+void StNpeMaker::read(TString fileName)
+{
   TFile* inFile = new TFile(fileName.Data(),"READ");
   TTree* tree = (TTree*)inFile->Get("T");
   tree->GetBranch("dEvent")->SetAutoDelete(kFALSE);
@@ -107,7 +110,7 @@ void StNpeMaker::read(TString fileName){
 	      }
 	  }
 	}
-
+      
 
       // Run_QA(mEvent); 
       Events_Cuts_and_Counting(mEvent); // after Events cuts and trigger selection;
@@ -136,8 +139,8 @@ void StNpeMaker::read(TString fileName){
 	  Int_t       bTrg=2;
 	  Double_t ps=mPrescales->GetPrescale(mEvent->runId(),VPDMB);
 	  if(ps<0) continue;
-	  // Fill_PhotonicE_hist ( bTrg, mNpeEvent , ps );
-	  // Fill_Inclusive_hist ( bTrg, mNpeEvent , ps );
+	  Fill_PhotonicE_hist ( bTrg, mEvent , ps );
+	  Fill_Inclusive_hist ( bTrg, mEvent , ps );
 	  // Fill_Kaon_Kaon(mNpeEvent,bTrg);
 	}       
       if(i%1000==0) cout<< " Working on event "<<i<<endl;
@@ -164,7 +167,7 @@ Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
 	      mh1MB_Nevents[bTrg]->Fill(1.5);
 	      mh1MB_Nevents_ps[bTrg]->Fill(1.5,ps_BBCMB_TOF0);
 	    }  
-	
+	  
 	  if(evt->isHT0_BBCMB_TOF0())
 	    {
 	      mh1HT_Nevents[bTrg]->Fill(2.5);
@@ -172,7 +175,6 @@ Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
 	      mh1hVz[bTrg]->Fill(evt->primaryVertex().z());
 	      mh1hVz_ps[bTrg]->Fill(evt->primaryVertex().z(),ps_HT0_BBCMB_TOF0);
 	    }
-
 	}
     }
   // 
@@ -232,8 +234,8 @@ void StNpeMaker::Fill_Inclusive_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       //------------------------------------------------------------------------------------------------------
       if(!pass_cut_Trigger_electron(Trk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(Trk,bTrg)) continue; // reject hot tower 
-      if(Trk->trgTowDsmAdc()>Trk->adc0()*0.1) continue; // since embedding reject those band,keep same with embedding 
-      if(pass_cut_poe(Trk)&&pass_cut_Match_BEMC(Trk)&&pass_cut_BSMD(Trk)) // without nsigma e cut ,fit purity
+      if((bTrg==0||bTrg==1)&&Trk->trgTowDsmAdc()>Trk->adc0()*0.1) continue; // since embedding reject those band,keep same with embedding 
+      if(((bTrg==0||bTrg==1)&&pass_cut_poe(Trk)&&pass_cut_Match_BEMC(Trk)&&pass_cut_BSMD(Trk))||(bTrg==2&&pass_cut_Tof(Trk)&& pass_Tof_Match(Trk)&&pass_cut_poe(Trk))) // without nsigma e cut ,fit purity
 	{
 	  mh2nSigmaElec[bTrg]->Fill(Trk->nSigmaElectron(),Trk->gMom().perp());
 	  mh2nSigmaElec_ps[bTrg]->Fill(Trk->nSigmaElectron(),Trk->gMom().perp(),ps);
@@ -260,12 +262,16 @@ void StNpeMaker::Fill_PhotonicE_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       if(!pass_cut_eePair(pair)) continue; // pass pair cuts  
       if(!pass_cut_Trigger_electron(eTrk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(eTrk,bTrg)) continue; // reject hot tower 
-      if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1) continue; // since embedding reject those band,keep same with embedding 
+      if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
       if(!pass_cut_acceptance(eTrk)) continue; // apply pt eta cuts on aprimary electron
       if(!pass_cut_Track_qaulity(eTrk)) continue; // pass track quality on primary electron 
       if(bTrg==0||bTrg==1) // HT0 and HT2
 	{
 	  Fill_pair_hist_HT(bTrg,pair,eTrk,pTrk,ps); // eID will applied
+	}
+      if(bTrg==2) // VPDMB
+	{
+	  Fill_pair_hist_MB(bTrg,pair,eTrk,pTrk,ps); // eID will applied
 	}
     }
 }
@@ -314,6 +320,21 @@ void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTra
 	}
       //    cout<<" pass !!!"<<endl;
     }
+}
+void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTrack* eTrk,StDmesonTrack * pTrk ,Double_t ps)
+{
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_Tof(eTrk)&& pass_Tof_Match(eTrk)&&pass_cut_poe(eTrk))
+   {
+     if(eTrk->charge()!=pTrk->charge())
+       {
+	 
+       }
+     if(eTrk->charge()==pTrk->charge())
+       {
+	 
+       }
+   }
+  
 }
 Bool_t StNpeMaker::pass_cut_eePair(StElectronPair * Pair)
 {
@@ -365,7 +386,8 @@ Bool_t StNpeMaker::pass_cut_poe(StDmesonTrack * trk)
 {
   Float_t P=trk->gMom().mag();
   Float_t E=trk->e0();
-  
+  Float_t Pt=trk->gMom().perp();
+  if(Pt<1.5) return kTRUE;
   if(P/E>cuts::poe_low && P/E<cuts::poe_high)
     return kTRUE;
   else return kFALSE;
@@ -381,8 +403,23 @@ Bool_t StNpeMaker::pass_cut_BSMD(StDmesonTrack * trk)
 Bool_t StNpeMaker::pass_cut_Match_BEMC(StDmesonTrack * trk )
 {
   if(cuts::Dz>fabs(trk->zDist()) && cuts::Dphi>fabs(trk->phiDist())&&cuts::Pt_cut<=trk->gMom().perp())
-     return kTRUE;
-     else return kFALSE;
+    return kTRUE;
+  else return kFALSE;
+}
+Bool_t StNpeMaker:: pass_cut_Tof( StDmesonTrack *trk)
+{
+  Float_t tofbeta=trk->btofBeta();
+  if(fabs(1/tofbeta-1)<cuts::tofbeta)
+    return kTRUE;
+  else return kFALSE;
+}
+Bool_t StNpeMaker::pass_Tof_Match( StDmesonTrack *trk)
+{
+  Float_t tof_Ylaocal=trk->btofYLocal();
+  // trk->btofBeta()>0
+  if(fabs(tof_Ylaocal)<cuts::tof_Ylocal &&  trk->btofMatchFlag()>0 && trk->btofBeta()>0)
+    return kTRUE;
+  else  return kFALSE;
 }
 Bool_t StNpeMaker::isHotTower(StDmesonTrack *trk,Int_t bTrg)
 {
@@ -392,14 +429,14 @@ Bool_t StNpeMaker::isHotTower(StDmesonTrack *trk,Int_t bTrg)
 
   // Int_t  Hot_towerlist[] ={32,52,115,246,268,276,294,295,386,510,562,682,750,773,894,987,994,1043,1064,1143,1233,1264,1285,1307,1487,1593,1710,1733,1823,1824,1851,1946,2022,2044,2064,2110,2146,2163,2165,2203,2291,2314,2522,2530,2634,2653,2835,2864,2866,2973,3006,3062,3533,3545,3691,3727,3862,3949,4051,4131,4170,4263,4431,4459,4684,4685,4686,4705,4767};
 
-   Int_t  Hot_towerlist[]={22,30,31,114,251,275,308,509,552,555,681,682,691,749,772,1063,1263,1268,1284,1304,1306,1329,1486,1592,1709,1768,1770,1823,1882,1904,1909,1945,2022,2042,2043,2048,2051,2067,2145,2146,2162,2171,2190,2202,2272,2288,2290,2493,2504,2522,2529,2549,2706,2723,2712,2750,2863,2865,2868,2874,2952,3061,3007,3061,3092,3112,3154,3264,3166,3269,3271,3307,3326,3330,3331,3349,3365,3373,3532,3544,3626,3692,3821,3861,3932,3964,4130,4169,4226,4232,4249,4252,4262,4353,4430,4546,4749,4727,4766};
-
-   for(Int_t i=0;i<sizeof(Hot_towerlist)/sizeof(Hot_towerlist[0]);i++ )
-     {
-       if(Hot_towerlist[i]==trk->btowId())
-	 return kTRUE;
-     }
-   return kFALSE;
+  Int_t  Hot_towerlist[]={22,30,31,114,251,275,308,509,552,555,681,682,691,749,772,1063,1263,1268,1284,1304,1306,1329,1486,1592,1709,1768,1770,1823,1882,1904,1909,1945,2022,2042,2043,2048,2051,2067,2145,2146,2162,2171,2190,2202,2272,2288,2290,2493,2504,2522,2529,2549,2706,2723,2712,2750,2863,2865,2868,2874,2952,3061,3007,3061,3092,3112,3154,3264,3166,3269,3271,3307,3326,3330,3331,3349,3365,3373,3532,3544,3626,3692,3821,3861,3932,3964,4130,4169,4226,4232,4249,4252,4262,4353,4430,4546,4749,4727,4766};
+  
+  for(Int_t i=0;i<sizeof(Hot_towerlist)/sizeof(Hot_towerlist[0]);i++ )
+    {
+      if(Hot_towerlist[i]==trk->btowId())
+	return kTRUE;
+    }
+  return kFALSE;
 }
 
 void StNpeMaker::bookObjects(){
@@ -415,10 +452,10 @@ void StNpeMaker::bookObjects(){
       
       mh1hVz[iTrg] = new TH1F(Form("mh1hVzTrg%i",iTrg), ";TPC Vz (cm)", 1000, -40+1e-6, 40+1e-6);
       mh1hVz_ps[iTrg] = new TH1F(Form("mh1hVz_psTrg%i",iTrg), ";TPC Vz (cm)", 400, -40+1e-6, 40+1e-6);
-
+      
       mh2hVzVsDiff[iTrg] = new TH2F(Form("mh2hVzVsDiffTrg%i",iTrg), ";TPC Vz (cm); Tpc Vz-VPD Vz (cm)", 400, -40+1e-6, 40+1e-6, 200, -10+1e-6, 10+1e-6);
       mh2hVzVsVpdVz[iTrg] = new TH2F(Form("mh2hVzVsVpdVzTrg%i",iTrg), ";TPC Vz (cm);VPD Vz (cm)", 400, -40+1e-6, 40+1e-6, 400, -40+1e-6, 40+1e-6);
-
+      
       // all the cuts appllied
       mPhi_ptUnlike[iTrg]=new TH2F(Form("mPhi_ptUnlikeTrg%i",iTrg)," ",200,0,20,400,-4,4);
       mEta_ptUnlike[iTrg]=new TH2F(Form("mEta_ptUnlikeTrg%i",iTrg)," ",200,0,20,300,-1.5,1.5);
@@ -475,16 +512,74 @@ void StNpeMaker::bookObjects(){
       mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",200,0,20,700,-35+1e-6,35+1e-6);
       mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",200,0,20,700,-35+1e-6,35+1e-6);
 
-      
       mh1MB_Nevents[iTrg]->Sumw2();
       mh1HT_Nevents[iTrg]->Sumw2();
       mh1MB_Nevents_ps[iTrg]->Sumw2();
       mh1HT_Nevents_ps[iTrg]->Sumw2();
-      
+
       mh2hVzVsDiff[iTrg]->Sumw2();
       mh2hVzVsVpdVz[iTrg]->Sumw2();
       mh1hVz[iTrg]->Sumw2();
       mh1hVz_ps[iTrg]->Sumw2();
+
+      // all cuts applied 
+      mPhi_ptUnlike[iTrg]->Sumw2();
+      mEta_ptUnlike[iTrg]->Sumw2();
+      mPhi_ptlike[iTrg]->Sumw2();
+      mEta_ptlike[iTrg]->Sumw2();
+       
+      mHitFit_ptUnlike[iTrg]->Sumw2();
+      mNSMDEta_ptUnlike[iTrg]->Sumw2();
+      mHitsDedxUnlike[iTrg]->Sumw2();
+      mHitFit_ptlike[iTrg]->Sumw2();
+      mNSMDEta_ptlike[iTrg]->Sumw2();
+      mHitsDedxlike[iTrg]->Sumw2();
+
+      mNTrackUnlike[iTrg]->Sumw2();
+      mNTrack_cutUnlike[iTrg]->Sumw2();
+      mNTracklike[iTrg]->Sumw2();
+      mNTrack_cutlike[iTrg]->Sumw2();
+      mFitPos_ptlike[iTrg]->Sumw2();
+      mgDcalike[iTrg]->Sumw2();
+      mFitPos_ptUnlike[iTrg]->Sumw2();
+      mgDcaUnlike[iTrg]->Sumw2();
+      mNSMDPhi_ptUnlike[iTrg]->Sumw2();
+      mNSMDPhi_ptlike[iTrg]->Sumw2();
+      mNTrack_cut25Unlike[iTrg]->Sumw2();
+      mNTrack_cut25like[iTrg]->Sumw2();
+      mNTrack_cut20Unlike[iTrg]->Sumw2();
+      mNTrack_cut20like[iTrg]->Sumw2();
+
+      mNsigElike[iTrg]->Sumw2();
+      mNsigEUnlike[iTrg]->Sumw2();
+
+      mDedxlike[iTrg]->Sumw2();
+      mDedxUnlike[iTrg]->Sumw2();
+      mPoeUnlike[iTrg] ->Sumw2();
+      mPoelike[iTrg] ->Sumw2();
+
+      mh2InvMassUnlike[iTrg] ->Sumw2();
+      mh2InvMasslike[iTrg] ->Sumw2();
+      mh2InvMassUnlike_ps[iTrg] ->Sumw2();
+      mh2InvMasslike_ps[iTrg] ->Sumw2();
+
+      mh3EMC_PartUnlike[iTrg] ->Sumw2();
+      mh3EMC_Partlike[iTrg] ->Sumw2();
+      mh3EMC_ADCPartUnlike[iTrg] ->Sumw2();
+      mh3EMC_ADCPartlike[iTrg] ->Sumw2();
+      mh3EtaPhiUnlike[iTrg] ->Sumw2();
+      mh3EtaPhilike[iTrg] ->Sumw2();
+
+      // inclusive e
+      mh2nSigmaElec[iTrg]->Sumw2();
+      mh2nSigmaElec_ps[iTrg]->Sumw2();
+      mh1electronPt[iTrg]->Sumw2(); 
+      mh1electronPt_ps[iTrg]->Sumw2();
+
+      mh2Pion_nSigmaElec[iTrg]->Sumw2();
+      mh2Kaon_nSigmaElec[iTrg]->Sumw2();
+      mh2Proton_nSigmaElec[iTrg]->Sumw2(); 
+    
     }
 }
 void StNpeMaker::writeObjects(){

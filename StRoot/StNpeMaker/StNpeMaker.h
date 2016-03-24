@@ -59,6 +59,9 @@ class StNpeMaker
   Bool_t pass_cut_BSMD(StDmesonTrack *);      
   Bool_t pass_cut_Match_BEMC(StDmesonTrack * );
 
+
+  Bool_t pass_Tof_Match( StDmesonTrack *);
+  Bool_t pass_cut_Tof( StDmesonTrack *);
   //  Bool_t pass_cut_Match_EMC_Dz(StDmesonTrack * );
 
  private:
