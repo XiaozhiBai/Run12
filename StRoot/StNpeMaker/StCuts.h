@@ -65,8 +65,8 @@ namespace cuts
   /* const Float_t Pt_cut_EMC=1.5; */
 
   // ee pair cuts
-  const Float_t InvMass=0.05;
-  const Float_t pairDca=0.5;
+  const Float_t InvMass=0.24;
+  const Float_t pairDca=1;
 
   /* // photonic electron partner cuts; */
   /* const Float_t nsigmaE_partner_low=-1.5; */

@@ -1,4 +1,5 @@
- /******************************************************************************************
+
+/******************************************************************************************
  *Mon Mar  7 19:33:04 EST 2016                                                            *
  * This class for read  DemesonTree Fill all the No-phoronic electron realted histogram   *
  * By xiaozhi Bai xiaozhi@uic.edu                                                         *
@@ -124,7 +125,7 @@ class StNpeMaker
   TH2F*   mDedxlike[nTrg];
   TH2F*   mDedxUnlike[nTrg];
   TH2F*   mPoelike[nTrg];
-  TH2F*  mPoeUnlike[nTrg];   
+  TH2F*   mPoeUnlike[nTrg];   
 
 
   TH3F*   mh3EMC_PartUnlike[nTrg];
@@ -138,6 +139,31 @@ class StNpeMaker
   TH2F * mh2InvMassUnlike[nTrg];
   TH2F * mh2InvMasslike_ps[nTrg];
   TH2F * mh2InvMassUnlike_ps[nTrg];
+
+  // EMC efficiency
+  TH2F *mh2Prim_Ele_MassVspT_noBEMCcut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_noBEMCcut_like[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_BEMCcut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_BEMCcut_like[nTrg];
+  
+  TH2F *mh2Part_Ele_MassVspT_noBEMCcut_unlike[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_noBEMCcut_like[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_BEMCcut_unlike[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_BEMCcut_like[nTrg];
+
+  
+  TH3F *mh3nSigmaEPart_pT_Mass_unlike_pass[nTrg];
+  TH3F *mh3nSigmaEPart_pT_Mass_like_pass[nTrg];
+  TH3F *mh3nSigmaEPart_pT_Mass_unlike_total[nTrg];
+  TH3F *mh3nSigmaEPart_pT_Mass_like_total[nTrg];
+
+  
+  //electron e dedx calibratio and efficiency
+  TH3F *mh3nSigmaE_pT_Mass_unlike[nTrg];
+  TH3F *mh3nSigmaE_pT_Mass_like[nTrg];
+  
+  
+
   
   // inclusive electron 
 
@@ -150,6 +176,8 @@ class StNpeMaker
   TH2F * mh2Pion_nSigmaElec[nTrg];
   TH2F * mh2Kaon_nSigmaElec[nTrg];
   TH2F * mh2Proton_nSigmaElec[nTrg];
+  TH2F * mh2nSigmaElec_pT[nTrg];
+
   
   
   ClassDef(StNpeMaker, 1)

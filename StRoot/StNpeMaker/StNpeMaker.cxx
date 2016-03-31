@@ -224,6 +224,7 @@ void StNpeMaker::Fill_Inclusive_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
   for(Int_t it=0;it<mEvent->nTracks();it++)
     {
       StDmesonTrack* Trk = (StDmesonTrack*)aTracks->At(it);
+      mh2nSigmaElec_pT[bTrg]->Fill(Trk->gMom().perp(),Trk->nSigmaElectron());
       if(!pass_cut_acceptance(Trk)) continue; // apply pt eta cuts on aprimary electron
       if(!pass_cut_Track_qaulity(Trk)) continue; // pass track quality on primary electron 
       // below three for the hadron nsigmae calibratio
@@ -259,10 +260,11 @@ void StNpeMaker::Fill_PhotonicE_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       StElectronPair* pair = (StElectronPair*)aPairs->At(ip);
       StDmesonTrack* eTrk = (StDmesonTrack*)aTracks->At(pair->electronId()); // primary electron 
       StDmesonTrack* pTrk = (StDmesonTrack*)aTracks->At(pair->partnerId()); // partner electron 
+
       if(!pass_cut_eePair(pair)) continue; // pass pair cuts  
-      if(!pass_cut_Trigger_electron(eTrk,bTrg )) continue; // pass triggere cuts     
+      // if(!pass_cut_Trigger_electron(eTrk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(eTrk,bTrg)) continue; // reject hot tower 
-      if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
+      // if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
       if(!pass_cut_acceptance(eTrk)) continue; // apply pt eta cuts on aprimary electron
       if(!pass_cut_Track_qaulity(eTrk)) continue; // pass track quality on primary electron 
       if(bTrg==0||bTrg==1) // HT0 and HT2
@@ -277,8 +279,58 @@ void StNpeMaker::Fill_PhotonicE_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
 }
 void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTrack* eTrk,StDmesonTrack * pTrk ,Double_t ps ) 
 {
+  //-------------------------------------------BEMC efficiency------------------------------------------------------------
+  if(pass_cut_nsigmaE(eTrk) &&pass_cut_Trigger_electron(eTrk,iTrg )) // no BEMC cut 
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+  	  mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+  	  mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	  mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	}
+      if(eTrk->charge()==pTrk->charge())
+  	{
+  	  mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+  	  mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	  mh3nSigmaEPart_pT_Mass_like_total[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	}
+    }
+  
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk) &&pass_cut_Match_BEMC(eTrk)&&pass_cut_BSMD(eTrk)&&pass_cut_Trigger_electron(eTrk,iTrg ))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+	  {
+	    mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+
+	    mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	    mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+	  }
+      if(eTrk->charge()==pTrk->charge())
+	{
+	  mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+	  mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m()); 
+	  mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());	  
+	}
+    }
+  //---------------------------nsigma E calibration-----------------------------------------------
+  if(pass_cut_poe(eTrk)&&pass_cut_Match_BEMC(eTrk)&&pass_cut_BSMD(eTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+	  mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	  mh3nSigmaE_pT_Mass_unlike[iTrg]->Fill(eTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
+  	}
+      
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	  mh3nSigmaE_pT_Mass_like[iTrg]->Fill(eTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
+  	}
+    }
+  
+  //---------------------------------------------------------------------------------------------------------
   // all the eid cuts applied 
-  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Match_BEMC(eTrk)&&pass_cut_BSMD(eTrk))
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Match_BEMC(eTrk)&&pass_cut_BSMD(eTrk) && pass_cut_Trigger_electron(eTrk,iTrg )) 
     {
       if(eTrk->charge()!=pTrk->charge())
 	{ 
@@ -319,6 +371,11 @@ void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTra
 	  mh3EMC_ADCPartlike[iTrg]->Fill(pTrk->nSigmaElectron(),eTrk->trgTowDsmAdc(),pair->m());
 	}
       //    cout<<" pass !!!"<<endl;
+
+
+
+
+      
     }
 }
 void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTrack* eTrk,StDmesonTrack * pTrk ,Double_t ps)
@@ -501,17 +558,40 @@ void StNpeMaker::bookObjects(){
       mh3EtaPhiUnlike[iTrg]=new TH3F(Form("mh3EtaPhiUnlikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,200,0,20);
       mh3EtaPhilike[iTrg]=new TH3F(Form("mh3EtaPhilikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,200,0,20);
 
-      //inclusive electron 
+      //      EMC efficiency
+      mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+      mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      
+      mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+      mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
 
-      mh2nSigmaElec[iTrg] = new TH2F(Form("mh2nSigmaElecTrg%i",iTrg),"",200,-10+1e-6,10+1e-6,200 ,0,20.);
-      mh2nSigmaElec_ps[iTrg] = new TH2F(Form("mh2nSigmaElec_psTrg%i",iTrg),"",200,-10+1e-6,10+1e-6,200 ,0,20.);
+      mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_passTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_like_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_passTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_totalTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_like_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_totalTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+  
+      // //electron e dedx calibratio and efficiency
+      mh3nSigmaE_pT_Mass_unlike[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_unlikeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaE_pT_Mass_like[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_likeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+
+      
+      
+      //inclusive electron 
+      
+      mh2nSigmaElec[iTrg] = new TH2F(Form("mh2nSigmaElecTrg%i",iTrg),"",399,-15,15,200 ,0,20.);
+      mh2nSigmaElec_ps[iTrg] = new TH2F(Form("mh2nSigmaElec_psTrg%i",iTrg),"",399,-15,15,200 ,0,20.);
       mh1electronPt[iTrg]=new TH1F(Form("mh1electronPtTrg%i",iTrg),"",200,0,20.);
       mh1electronPt_ps[iTrg]=new TH1F(Form("mh1electronPt_psTrg%i",iTrg),"",200,0,20.);
 
-      mh2Pion_nSigmaElec[iTrg] =new TH2F(Form("mh2Pion_nSigmaElecTrg%i",iTrg),"",200,0,20, 700,-35+1e-6,35+1e-6);
-      mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",200,0,20,700,-35+1e-6,35+1e-6);
-      mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",200,0,20,700,-35+1e-6,35+1e-6);
-
+      mh2Pion_nSigmaElec[iTrg] =new TH2F(Form("mh2Pion_nSigmaElecTrg%i",iTrg),"",200,0,20, 699,-35,35);
+      mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
+      mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
+      mh2nSigmaElec_pT[iTrg]=new TH2F(Form("mh2nSigmaElec_pTTrg%i",iTrg),"",400,0,20,1399,-35,35);
+      
       mh1MB_Nevents[iTrg]->Sumw2();
       mh1HT_Nevents[iTrg]->Sumw2();
       mh1MB_Nevents_ps[iTrg]->Sumw2();
@@ -570,6 +650,26 @@ void StNpeMaker::bookObjects(){
       mh3EtaPhiUnlike[iTrg] ->Sumw2();
       mh3EtaPhilike[iTrg] ->Sumw2();
 
+      //      EMC efficiency
+      mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Sumw2();
+      mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]->Sumw2();
+      mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]->Sumw2();
+      mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]->Sumw2();
+      
+      mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Sumw2();
+      mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]->Sumw2();
+      mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]->Sumw2();
+      mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]->Sumw2();
+
+      mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]->Sumw2();
+      mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Sumw2();
+      mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]->Sumw2();
+      mh3nSigmaEPart_pT_Mass_like_total[iTrg]->Sumw2();
+      
+      //electron e dedx calibratio and efficiency
+      mh3nSigmaE_pT_Mass_unlike[iTrg]->Sumw2();
+      mh3nSigmaE_pT_Mass_like[iTrg]->Sumw2();
+
       // inclusive e
       mh2nSigmaElec[iTrg]->Sumw2();
       mh2nSigmaElec_ps[iTrg]->Sumw2();
@@ -579,7 +679,7 @@ void StNpeMaker::bookObjects(){
       mh2Pion_nSigmaElec[iTrg]->Sumw2();
       mh2Kaon_nSigmaElec[iTrg]->Sumw2();
       mh2Proton_nSigmaElec[iTrg]->Sumw2(); 
-    
+      mh2nSigmaElec_pT[iTrg]->Sumw2();
     }
 }
 void StNpeMaker::writeObjects(){
@@ -645,6 +745,27 @@ void StNpeMaker::writeObjects(){
       mh3EtaPhiUnlike[iTrg] ->Write();
       mh3EtaPhilike[iTrg] ->Write();
 
+      //      EMC efficiency
+      mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Write();
+      mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]->Write();
+      mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]->Write();
+      mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]->Write();
+      
+      mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]->Write();
+      mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]->Write();
+      mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]->Write();
+      mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]->Write();
+
+      mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]->Write();
+      mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Write();
+      mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]->Write();
+      mh3nSigmaEPart_pT_Mass_like_total[iTrg]->Write();
+
+      //electron e dedx calibratio and efficiency
+      mh3nSigmaE_pT_Mass_unlike[iTrg]->Write();
+      mh3nSigmaE_pT_Mass_like[iTrg]->Write();
+
+      
       // inclusive e
       mh2nSigmaElec[iTrg]->Write();
       mh2nSigmaElec_ps[iTrg]->Write();
@@ -654,5 +775,6 @@ void StNpeMaker::writeObjects(){
       mh2Pion_nSigmaElec[iTrg]->Write();
       mh2Kaon_nSigmaElec[iTrg]->Write();
       mh2Proton_nSigmaElec[iTrg]->Write(); 
+      mh2nSigmaElec_pT[iTrg]->Write();
     }
 }
