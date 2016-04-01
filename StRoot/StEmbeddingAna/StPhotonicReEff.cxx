@@ -17,7 +17,8 @@ ClassImp(StPhotonicReEff)
   
 StPhotonicReEff::StPhotonicReEff(const char* outName)
 {
-  TH1F::SetDefaultSumw2();  
+  TH1F::SetDefaultSumw2();
+  TH2F::SetDefaultSumw2();  
   mOutputFile=new TFile(outName,"RECREATE");
   //  weightFile=new TFile("pi0_gamma_fit.root","READ");
   weightFile=new TFile("/global/u1/x/xiao00/disk02/Weight.root","READ");
@@ -59,7 +60,8 @@ void StPhotonicReEff::read(TString fileName)
   Pair->Init(ntPair);
   for(Int_t iTrk=0;iTrk<tracksMC->GetEntries();iTrk++)
     {
- 
+      if(iTrk%5000==0)
+	cout<< " working on track  " <<iTrk<<endl;
       tracksMC->GetEntry(iTrk);
       if(fabs(tracksMC->vz)<35 
 	 && tracksMC->dca<1.5 
@@ -81,20 +83,22 @@ void StPhotonicReEff::read(TString fileName)
   for(Int_t iPair=0;iPair<Pair->GetEntries();iPair++)
     {
       Pair->GetEntry(iPair);
+      if(iPair%5000==0)
+	cout<< " working on Pair  " <<iPair<<endl;
+      
       if(fabs(Pair->vz)<35
 	 && fabs(Pair->p1eta)<0.7 
-	 &&0.3<Pair->p2rpt 
+	 &&0.2<Pair->p1rpt 
 	 && Pair->p1nfit>20 
 	 && Pair->p1nfit/(Float_t)Pair->p1nmax>0.52 
 	 && Pair->p1ndedx>15 
 	 && Pair->p1ncom>10
-	 && Pair->p2ncom>10 
-	 
-	 && 0.2<Pair->p1rpt
 	 && abs(Pair->p1rpt-Pair->p1pt)/Pair->p1pt<0.15
 	 && sqrt(Pair->p1stpcx*Pair->p1stpcx+Pair->p1stpcy*Pair->p1stpcy)<73
-	 && Pair->p1dca<1.5 
-	 && Pair->p2nfit>20 && (Float_t)Pair->p2nfit/(Float_t)Pair->p2nmax>0.52
+	 && Pair->p1dca<1.5
+	 && 0.2<Pair->p2rpt
+	 && Pair->p2nfit>15 && (Float_t)Pair->p2nfit/(Float_t)Pair->p2nmax>0.52
+	 && Pair->p2ncom>10 
 	 &&Pair->massDCA<0.24
 	 && Pair->pairDCA<1)	
 	{ 

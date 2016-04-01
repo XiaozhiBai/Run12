@@ -25,11 +25,11 @@ class StKaonKaon : public TObject {
   Float_t phi()   const { return (Float_t)mPhi/1000.;}
   Float_t openAngle() const { return (Float_t)mOpenAngle/1000.;}
   StLorentzVectorF lorentzVector();
-  
+
  protected:
   UShort_t mKaon1Id;
   UShort_t mKaon2Id;
-  
+
   UShort_t mM; // mass * 10000. : keV precision
   UShort_t mPt; // pt * 1000.   : MeV precision
   Short_t mEta; // eta * 1000.

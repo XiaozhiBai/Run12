@@ -50,8 +50,8 @@ void StTrackingEfficiency::read(TString fileName)
   tracksMC->Init(ntTracks);
   eventCount->Init(ntEventCount);
   
-  cout<<"  Entries"<<eventCount->GetEntries() <<endl;
-  cout<<"  Entries"<<tracksMC->GetEntries() <<endl; 
+  // cout<<"  Entries"<<eventCount->GetEntries() <<endl;
+  // cout<<"  Entries"<<tracksMC->GetEntries() <<endl; 
 
   for (Int_t iEvent=0;iEvent<eventCount->GetEntries();iEvent++)//
     {
@@ -60,6 +60,9 @@ void StTrackingEfficiency::read(TString fileName)
     }
   for(Int_t iTrk=0;iTrk<tracksMC->GetEntries();iTrk++)
     {
+      if(iTrk%5000==0)
+	cout<<" working on entry "<< iTrk<<endl;
+      
       if(isHotTower(tracksMC)) continue;
       tracksMC->GetEntry(iTrk);
       if(abs(tracksMC->eta)<0.7 )
@@ -84,7 +87,6 @@ void StTrackingEfficiency::read(TString fileName)
   mNTrack_nocuts->Write();
   mNTrack_cut->Write();
   mNTrack_cut_25->Write(); 
-  mNTrack_cut_20->Write();
 }
 bool StTrackingEfficiency::isHotTower(StSingle_Electron_tracks * trk)
 {

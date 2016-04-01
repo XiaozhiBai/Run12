@@ -107,72 +107,72 @@ Int_t StDmesonMaker::Make()
 
          bKaon = 0;
          bPion = 0;
-	 bElectron = 0;
-	 bGlobalElectron = 0;
+         bElectron = 0;
+         bGlobalElectron = 0;
 
-	 Short_t  trg_tow_id = -1;
-	 UShort_t dsm_adc = 0;
-	 UShort_t adc = 0;
-	 //if(mDmesonEvent->isHT()) getTrgBTOW(trk, trg_tow_id,dsm_adc, adc);
-	 if(trk->gMom().perp()>1)  getTrgBTOW(trk, trg_tow_id,dsm_adc, adc);
+         Short_t  trg_tow_id = -1;
+         UShort_t dsm_adc = 0;
+         UShort_t adc = 0;
+         //if(mDmesonEvent->isHT()) getTrgBTOW(trk, trg_tow_id,dsm_adc, adc);
+         if (trk->gMom().perp() > 1)  getTrgBTOW(trk, trg_tow_id, dsm_adc, adc);
 
-	 if(isPartnerElectron(trk))
-	 {
-		 idPicoGlobalElectrons.push_back(iTrack);
-		 idGlobalElectrons.push_back(mDmesonEvent->nTracks());
-		 bGlobalElectron = kTRUE;
-	 }
+         if (isPartnerElectron(trk))
+         {
+            idPicoGlobalElectrons.push_back(iTrack);
+            idGlobalElectrons.push_back(mDmesonEvent->nTracks());
+            bGlobalElectron = kTRUE;
+         }
 
-	 //if(isElectron(trk) && (mDmesonEvent->isVPDMB() || dsm_adc>0))
-	 if(isElectron(trk))
-	 {
-		 idPicoPrimaryElectrons.push_back(iTrack);
-		 idPrimaryElectrons.push_back(mDmesonEvent->nTracks());
-		 bElectron = kTRUE;
-	 }
+         //if(isElectron(trk) && (mDmesonEvent->isVPDMB() || dsm_adc>0))
+         if (isElectron(trk))
+         {
+            idPicoPrimaryElectrons.push_back(iTrack);
+            idPrimaryElectrons.push_back(mDmesonEvent->nTracks());
+            bElectron = kTRUE;
+         }
 
          if (isPion(trk))
          {
             idPicoDstPions.push_back(iTrack);
             idDmesonPions.push_back(mDmesonEvent->nTracks());
-	    bPion = kTRUE;
+            bPion = kTRUE;
          }
 
          if (isKaon(trk))
          {
             idPicoDstKaons.push_back(iTrack);
             idDmesonKaons.push_back(mDmesonEvent->nTracks());
-	    bKaon = kTRUE;
+            bKaon = kTRUE;
          }
 
-	 // Shusu needs all hadrons for e-h correlation study
-         if ((trk->gMom().perp()>cuts::hadronsGlobalPt && trk->dca()<cuts::hadronsDca)
-			 || bKaon || bPion || bElectron || bGlobalElectron)
+         // Shusu needs all hadrons for e-h correlation study
+         if ((trk->gMom().perp() > cuts::hadronsGlobalPt && trk->dca() < cuts::hadronsDca)
+               || bKaon || bPion || bElectron || bGlobalElectron)
          {
-            mDmesonEvent->addTrack(trk, trg_tow_id,dsm_adc,adc);
+            mDmesonEvent->addTrack(trk, trg_tow_id, dsm_adc, adc);
          }
       } // .. end tracks loop
 
       // make photonic electron
-      for(UInt_t ie1 = 0; ie1 < idPicoPrimaryElectrons.size(); ie1++)
+      for (UInt_t ie1 = 0; ie1 < idPicoPrimaryElectrons.size(); ie1++)
       {
-	      StPicoTrack* e1Trk = (StPicoTrack*)mPicoDst->track(idPicoPrimaryElectrons[ie1]);
+         StPicoTrack* e1Trk = (StPicoTrack*)mPicoDst->track(idPicoPrimaryElectrons[ie1]);
 
-	      for(UInt_t ie2 = 0; ie2 < idPicoGlobalElectrons.size(); ie2++)
-	      {
-		      if(idPicoPrimaryElectrons[ie1] == idPicoGlobalElectrons[ie2]) continue;
+         for (UInt_t ie2 = 0; ie2 < idPicoGlobalElectrons.size(); ie2++)
+         {
+            if (idPicoPrimaryElectrons[ie1] == idPicoGlobalElectrons[ie2]) continue;
 
-		      StPicoTrack* e2Trk = (StPicoTrack*)mPicoDst->track(idPicoGlobalElectrons[ie2]);
+            StPicoTrack* e2Trk = (StPicoTrack*)mPicoDst->track(idPicoGlobalElectrons[ie2]);
 
-		      StElectronPair* pair = new StElectronPair(e1Trk,e2Trk,idPrimaryElectrons[ie1],idGlobalElectrons[ie2],mPicoEvent->bField());
+            StElectronPair* pair = new StElectronPair(e1Trk, e2Trk, idPrimaryElectrons[ie1], idGlobalElectrons[ie2], mPicoEvent->bField());
 
-		      if(pair->m()<0.3 && pair->pairDca()<1.0)
-		      {
-			      mDmesonEvent->addElectronPair(pair);
-		      }
+            if (pair->m() < 0.3 && pair->pairDca() < 1.0)
+            {
+               mDmesonEvent->addElectronPair(pair);
+            }
 
-		      delete pair;
-	      }
+            delete pair;
+         }
       } // ... end electron pair loop
 
       for (UInt_t ik = 0; ik < idPicoDstKaons.size(); ik++)
@@ -184,7 +184,7 @@ Int_t StDmesonMaker::Make()
             if (idPicoDstKaons[ik] == idPicoDstPions[ip]) continue;
 
             StPicoTrack* pion = mPicoDst->track(idPicoDstPions[ip]);
-	    if(pion->pMom().perp()<=0.2 || fabs(pion->pMom().pseudoRapidity())>=cuts::pionEta) continue; // for the Kπ pair we need both to have pT>0.2 
+            if (pion->pMom().perp() <= 0.2 || fabs(pion->pMom().pseudoRapidity()) >= cuts::pionEta) continue; // for the Kπ pair we need both to have pT>0.2
 
             StKaonPion* kaonPion = new StKaonPion(kaon, pion, idDmesonKaons[ik], idDmesonPions[ip]);
 
@@ -229,8 +229,8 @@ Int_t StDmesonMaker::Make()
                continue;
             }
 
-	    // fill only for vpdMB events
-	    if(!mDmesonEvent->isVPDMB()) continue;
+            // fill only for vpdMB events
+            if (!mDmesonEvent->isVPDMB()) continue;
 
             // make KKπ
             for (UInt_t ip = 0; ip < idPicoDstPions.size(); ip++)
@@ -278,7 +278,7 @@ Bool_t StDmesonMaker::isGoodEvent()
    // these are the triggers we will use
    // reconstruct only (VPDMB || HT0 || HT1 || HT2)
    // see StPicoConstants.cxx for triggerWord definition
-   if(!(mPicoEvent->triggerWord() & 0x1FB)) return kFALSE;
+   if (!(mPicoEvent->triggerWord() & 0x1FB)) return kFALSE;
 
    // cuts
    Float_t vz = mPicoEvent->primaryVertex().z();
@@ -295,42 +295,42 @@ Bool_t StDmesonMaker::isGoodTrack(StPicoTrack* trk)
 {
    if (trk->nHitsFit() >= cuts::nHitsFit &&
          (Float_t)trk->nHitsFit() / (Float_t)trk->nHitsMax() > cuts::nHitsFitnHitsMax) return kTRUE;
-   
+
    return kFALSE;
 }
 //-----------------------------------------------------------------------------
 Bool_t StDmesonMaker::isPion(StPicoTrack* trk)
 {
-	// no cut on Eta because the soft pion can have any eta
-   if (trk->pMom().perp() >= cuts::pionPt && fabs(trk->nSigmaPion()) < cuts::nSigmaPion && trk->dca()<cuts::dca) return kTRUE;
-   
+   // no cut on Eta because the soft pion can have any eta
+   if (trk->pMom().perp() >= cuts::pionPt && fabs(trk->nSigmaPion()) < cuts::nSigmaPion && trk->dca() < cuts::dca) return kTRUE;
+
    return kFALSE;
 }
 //-----------------------------------------------------------------------------
 Bool_t StDmesonMaker::isKaon(StPicoTrack* trk)
 {
-   if (trk->pMom().perp() >= cuts::kaonPt  && fabs(trk->nSigmaKaon()) < cuts::nSigmaKaon 
-		   && fabs(trk->pMom().pseudoRapidity()) < cuts::kaonEta && trk->dca()<cuts::dca) return kTRUE;
+   if (trk->pMom().perp() >= cuts::kaonPt  && fabs(trk->nSigmaKaon()) < cuts::nSigmaKaon
+         && fabs(trk->pMom().pseudoRapidity()) < cuts::kaonEta && trk->dca() < cuts::dca) return kTRUE;
 
    return kFALSE;
 }
 //------------------------------------------------------------------
 Bool_t StDmesonMaker::isElectron(StPicoTrack* trk)
 {
-   if (trk->gMom().perp() >= cuts::electronPt  && trk->dca()<cuts::dca && 
-		   trk->nSigmaElectron()>cuts::nSigmaElectronLow && trk->nSigmaElectron()<cuts::nSigmaElectronHigh
-		   && fabs(trk->gMom().pseudoRapidity())< cuts::electronEta
-		   && (trk->gMom().perp()>1.0 || (trk->btofBeta()>0 && fabs(1/trk->btofBeta()-1)<cuts::electronsBeta))) return kTRUE;
-   
+   if (trk->gMom().perp() >= cuts::electronPt  && trk->dca() < cuts::dca &&
+         trk->nSigmaElectron() > cuts::nSigmaElectronLow && trk->nSigmaElectron() < cuts::nSigmaElectronHigh
+         && fabs(trk->gMom().pseudoRapidity()) < cuts::electronEta
+         && (trk->gMom().perp() > 1.0 || (trk->btofBeta() > 0 && fabs(1 / trk->btofBeta() - 1) < cuts::electronsBeta))) return kTRUE;
+
    return kFALSE;
 }
 //------------------------------------------------------------------
 Bool_t StDmesonMaker::isPartnerElectron(StPicoTrack* trk)
 {
-	return trk->gMom().perp()>cuts::partnerElecGlobalPt && fabs(trk->nSigmaElectron())<cuts::partnerElecNSigmaElectron;
+   return trk->gMom().perp() > cuts::partnerElecGlobalPt && fabs(trk->nSigmaElectron()) < cuts::partnerElecNSigmaElectron;
 }
 //-----------------------------------------------------
-void StDmesonMaker::getTrgBTOW(StPicoTrack* trk, Short_t& f_tow_id,UShort_t& f_DSM_adc, UShort_t& f_adc)
+void StDmesonMaker::getTrgBTOW(StPicoTrack* trk, Short_t& f_tow_id, UShort_t& f_DSM_adc, UShort_t& f_adc)
 {
    f_tow_id = -1;
    f_DSM_adc = 0;
@@ -339,51 +339,49 @@ void StDmesonMaker::getTrgBTOW(StPicoTrack* trk, Short_t& f_tow_id,UShort_t& f_D
    Float_t f_dPhi = -999.;
    Float_t f_dEta = -999.;
 
-   if (!(mPicoEvent->triggerWord() & 0x1f8)) return; // HT events only
+   // we want to have trigger information in MinBias for trigger efficiency calculations
+   //if (!(mPicoEvent->triggerWord() & 0x1f8)) return; // HT events only
 
-   Int_t triggerTowerId = 0;
+
+   if (!(trk->btowId() >= 1 && trk->btowId() <= 4800)) return;
+   Float_t trackProjectionPhi, trackProjectionEta;
+   mEmcGeom->getEtaPhi(trk->btowId(), trackProjectionEta, trackProjectionPhi);
+
    for (UInt_t i = 0; i < mPicoDst->numberOfTriggers(); i++)
    {
-      // triggers for pp200GeV Run12
-      if ((mPicoEvent->triggerWord() & 0x48 && mPicoDst->trigger(i)->flag() & 0x1) ||
-            (mPicoEvent->triggerWord() & 0x90 && mPicoDst->trigger(i)->flag() & 0x2) ||
-            (mPicoEvent->triggerWord() & 0x120 && mPicoDst->trigger(i)->flag() & 0x4))
+      Int_t triggerTowerId = mPicoDst->trigger(i)->id();
+
+      if (triggerTowerId >= 1 && triggerTowerId <= 4800)
       {
-         triggerTowerId = mPicoDst->trigger(i)->id();
+         Float_t triggerTowerPhi, triggerTowerEta;
+         mEmcGeom->getEtaPhi(triggerTowerId, triggerTowerEta, triggerTowerPhi);
 
-         if (triggerTowerId >= 1 && triggerTowerId <= 4800 && trk->btowId() >= 1 && trk->btowId() <= 4800)
+         Float_t dPhi = triggerTowerPhi - trackProjectionPhi;
+         while (dPhi > TMath::Pi()) dPhi -= 2 * TMath::Pi();
+         while (dPhi < -TMath::Pi()) dPhi += 2 * TMath::Pi();
+         Float_t dEta = triggerTowerEta - trackProjectionEta;
+
+         if (fabs(dPhi) < 0.06 && fabs(dEta) < 0.06 &&
+               fabs(dPhi) < fabs(f_dPhi) && fabs(dEta) < fabs(f_dEta)) // associate with the closest trigger tower
          {
-            Float_t triggerTowerPhi, triggerTowerEta;
-            Float_t trackProjectionPhi, trackProjectionEta;
-            mEmcGeom->getEtaPhi(triggerTowerId, triggerTowerEta, triggerTowerPhi);
-            mEmcGeom->getEtaPhi(trk->btowId(), trackProjectionEta, trackProjectionPhi);
-
-            Float_t dPhi = triggerTowerPhi - trackProjectionPhi;
-            while (dPhi > TMath::Pi()) dPhi -= 2 * TMath::Pi();
-            while (dPhi < -TMath::Pi()) dPhi += 2 * TMath::Pi();
-            Float_t dEta = triggerTowerEta - trackProjectionEta;
-
-            if (fabs(dPhi) < 0.06 && fabs(dEta) < 0.06 && fabs(dPhi) < fabs(f_dPhi) && fabs(dEta) < fabs(f_dEta))
-            {
-               f_dPhi = dPhi;
-               f_dEta = dEta;
-               f_DSM_adc = mPicoDst->trigger(i)->adc();
-	       f_tow_id = mPicoDst->trigger(i)->id();
-            }
+            f_dPhi = dPhi;
+            f_dEta = dEta;
+            f_DSM_adc = mPicoDst->trigger(i)->adc();
+            f_tow_id = mPicoDst->trigger(i)->id();
          }
       }
    }
 
-   if(f_tow_id<=0) return; 
+   if (f_tow_id <= 0) return;
 
-   for(unsigned int i=0; i<mPicoDst->numberOfBTOWHits(); i++)
+   for (unsigned int i = 0; i < mPicoDst->numberOfBTOWHits(); i++)
    {
-	   StPicoBTOWHit* hit = (StPicoBTOWHit*)mPicoDst->btowHit(i);
+      StPicoBTOWHit* hit = (StPicoBTOWHit*)mPicoDst->btowHit(i);
 
-	   if(f_tow_id == hit->id())
-	   {
-		   f_adc = hit->adc();
-		   break;
-	   }
+      if (f_tow_id == hit->id())
+      {
+         f_adc = hit->adc();
+         break;
+      }
    }
 }
