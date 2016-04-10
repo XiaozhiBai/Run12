@@ -5,8 +5,9 @@ void run_StTrigEfficiency(TString filelist,TString outFileName)
 
 	gSystem->Load("StEmbeddingAna");
 
-	StTrackingEfficiency* MC = new StTrackingEfficiency(outFileName.Data());
+	StTrigEfficiency* MC = new StTrigEfficiency(outFileName.Data());
 
+	
 	MC->bookHistogram();
 	char filename[1000];
 	ifstream fstream(filelist.Data());

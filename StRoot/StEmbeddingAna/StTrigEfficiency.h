@@ -13,7 +13,8 @@ class TH2D;
 
 class  TH3F;
 //class StMcAccpEventCount;
-class StSingle_Electron_tracks; 
+class StSingle_Electron_tracks;
+class TGraphErrors;
 /* class StPheRecoPair; */
 /* class StPheRecoTrack; */
 
@@ -27,10 +28,12 @@ class StTrigEfficiency
   void read(TString filename);
   void WriteHistogram();
     Double_t Weight(Float_t );
+    Double_t Weight(Float_t ,Float_t);
  private:
     TFile * mOutputFile;
     
     TFile * weightFile;
+    TGraphErrors * gFONLLc;
     //  StMcAccpTracks *AcTracks;
     // StMcAccpEventCount *mAcEvent;   
 

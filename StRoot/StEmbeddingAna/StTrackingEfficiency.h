@@ -17,7 +17,7 @@ class TH2F;
 
 class StSingle_Electron_tracks;
 class StSingle_electron_EventCount;
-
+class TGraphErrors;
 class StTrackingEfficiency
 {
  public:
@@ -28,11 +28,14 @@ class StTrackingEfficiency
   void read(TString filename);
   void WriteHistogram();
   bool isHotTower(StSingle_Electron_tracks *);
-
+  Double_t Weight(Float_t ,Float_t);
+  
  private:
   TFile * mOutputFile;
   StSingle_Electron_tracks *AcTracks;
   StSingle_electron_EventCount *mAcEvent;   
+  TFile * weightFile;
+  TGraphErrors * gFONLLc; 
   
  
   TH1F *  mNTrack_nocuts;

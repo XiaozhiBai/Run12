@@ -36,11 +36,6 @@ void StTrigEfficiency::bookHistogram()
   m_DSMadc11_cut=new TH1F("m_DSMadc11_cut","m_DSMadc11_cut",2000,0,20);
   m_DSMadc18_cut=new TH1F("m_DSMadc18_cut","m_DSMadc18_cut",2000,0,20); 
   m_DSMadc=new TH1F("m_DSMadc","m_DSMadc",2000,0,20);
-
-  m_DSMadc11_cut->Sumw2();
-  m_DSMadc18_cut->Sumw2();
-  m_DSMadc->Sumw2();
-
 }
 void StTrigEfficiency::read(TString fileName)
 { 

@@ -79,17 +79,7 @@ void StNpeMaker::read(TString fileName)
     {
       tree->GetEntry(i);
       int runId = mEvent->runId();
-      if(!mEvent->isVPDMB()&&!mEvent->isHT0_BBCMB_TOF0()&&!mEvent->isHT2_BBCMB()) continue; // No intriesting trigger 
-      if(mEvent->isVPDMB())   // reject bad run i MB
-	{
-	  for(int i=0;i<mNBadRuns_MB;i++){
-	    if(runId==mBadRuns_MB[i])
-	      {
-		LOG_INFO<< " This is bad run !! rejected "<<endm;
-		return ;
-	      }
-	  }
-	}
+      //      if(!mEvent->isVPDMB()&&!mEvent->isHT0_BBCMB_TOF0()&&!mEvent->isHT2_BBCMB()) continue; // No intriesting trigger 
       if(mEvent->isHT0_BBCMB_TOF0())   // reject bad run i HT0
 	{
 	  for(int i=0;i<mNBadRuns_HT0;i++){
@@ -111,6 +101,17 @@ void StNpeMaker::read(TString fileName)
 	  }
 	}
       
+      if(mEvent->isVPDMB())   // reject bad run i MB
+	{
+	  for(int i=0;i<mNBadRuns_MB;i++){
+	    if(runId==mBadRuns_MB[i])
+	      {
+		LOG_INFO<< " This is bad run !! rejected "<<endm;
+		return ;
+	      }
+	  }
+	}
+
 
       // Run_QA(mEvent); 
       Events_Cuts_and_Counting(mEvent); // after Events cuts and trigger selection;
@@ -150,12 +151,12 @@ Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
 {
   if(!evt) return kFALSE;
   Float_t vz = evt->primaryVertex().z();
-  if (!(evt->ranking() >cuts::mRanking )) return kFALSE;
+  if (!(evt->ranking() >cuts::mRanking)) return kFALSE;
   if(fabs(vz) > cuts::Tpc_vz) return kFALSE;
-  if(evt->isVPDMB() && fabs(vz-evt->vzVpd())>cuts::diff_vzVpdVz) return kFALSE;
+
 
   // counting the #MB and #HT for Events counting
-  if(evt->isBBCMB_TOF0() ||evt->isHT0_BBCMB_TOF0())
+  if(evt->isBBCMB_TOF0()||evt->isHT0_BBCMB_TOF0())
     {
       Int_t bTrg=0;
       Double_t ps_HT0_BBCMB_TOF0=mPrescales->GetPrescale(evt->runId(),HT0BBCMBTOF0);
@@ -178,12 +179,12 @@ Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
 	}
     }
   // 
-  if(evt->isBBCMB() ||evt->isHT2_BBCMB())
+  if(evt->isBBCMB()||evt->isHT2_BBCMB())
     { 
       Int_t bTrg=1;
       Double_t ps_BBCMB=mPrescales->GetPrescale(evt->runId(),BBCMB);
       Double_t ps_HT2BBCMB=mPrescales->GetPrescale(evt->runId(),HT2BBCMB);
-      if( ps_BBCMB>0 && ps_HT2BBCMB>0)                
+      if(ps_BBCMB>0 && ps_HT2BBCMB>0)                
 	{
 	  if(evt->isBBCMB())
 	    {
@@ -200,6 +201,8 @@ Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
 	}
     }
   // VPDMB
+  if(evt->isVPDMB() && fabs(vz-evt->vzVpd())>cuts::diff_vzVpdVz) return kFALSE;
+  
   if(evt->isVPDMB())
     {
       Int_t bTrg=2;
@@ -264,7 +267,7 @@ void StNpeMaker::Fill_PhotonicE_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       if(!pass_cut_eePair(pair)) continue; // pass pair cuts  
       // if(!pass_cut_Trigger_electron(eTrk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(eTrk,bTrg)) continue; // reject hot tower 
-      // if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
+       if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
       if(!pass_cut_acceptance(eTrk)) continue; // apply pt eta cuts on aprimary electron
       if(!pass_cut_Track_qaulity(eTrk)) continue; // pass track quality on primary electron 
       if(bTrg==0||bTrg==1) // HT0 and HT2
