@@ -53,21 +53,18 @@ namespace cuts
   const Float_t tofbeta=0.03;
   const Float_t tof_Ylocal=1.8;
   
-  /* const Float_t eta_max=0.7; */
-  /* const Float_t pt_min=0.2; */
-  /* const Int_t nhitsFit = 20; */
-  /* const Float_t nHitsRatio = 0.52; */
-  /* const Int_t nhitDedx=15; */
-  /* const Float_t gDca = 1.5; */
-  /* const Float_t tofbeta=0.03;  */
-  /* const Float_t tof_Y=1.8; */
-
-  /* const Float_t Pt_cut_EMC=1.5; */
 
   // ee pair cuts
   const Float_t InvMass=0.24;
   const Float_t pairDca=1;
 
+  // hadron
+
+  const Float_t mass_proton=0.938;
+  const Float_t mass_kaon=0.494;
+  const Float_t mass_pion=0.14;
+  
+  
   /* // photonic electron partner cuts; */
   /* const Float_t nsigmaE_partner_low=-1.5; */
   /* const Float_t nsigmaE_partner_high=3; */

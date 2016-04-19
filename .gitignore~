@@ -1,0 +1,16 @@
+.gitignore
+*.root
+*.pdf
+*.png
+LOG*
+*.o
+.sl*
+temp_gccflags.c
+.consign
+.sl64_gcc447
+submit_job
+test.list
+Npefile.list
+temp_bk/*
+logtest
+README.md

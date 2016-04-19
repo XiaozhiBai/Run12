@@ -114,10 +114,12 @@ void StNpeMaker::read(TString fileName)
 
 
       // Run_QA(mEvent); 
-      Events_Cuts_and_Counting(mEvent); // after Events cuts and trigger selection;
+      Events_Counting(mEvent); // after Events cuts and trigger selection;
+      //      if(!isGoodEvent(mEvent)) continue;
+
       aPairs=mEvent->electronPair();
       aTracks=mEvent->tracks();    
-      if(mEvent->isHT0_BBCMB_TOF0())
+      if(mEvent->isHT0_BBCMB_TOF0()&&isGood_HT_Event(mEvent))
 	{ 
 	  Int_t  bTrg=0;
 	  Double_t  ps=mPrescales->GetPrescale(mEvent->runId(),HT0BBCMBTOF0);
@@ -125,7 +127,7 @@ void StNpeMaker::read(TString fileName)
 	  Fill_PhotonicE_hist ( bTrg, mEvent, ps);
 	  Fill_Inclusive_hist ( bTrg, mEvent ,ps);
 	}
-      if(mEvent->isHT2_BBCMB())
+      if(mEvent->isHT2_BBCMB()&&isGood_HT_Event(mEvent))
         {
 	  Int_t  bTrg=1;
 	  Double_t  ps=mPrescales->GetPrescale(mEvent->runId(),HT2BBCMB);
@@ -134,9 +136,8 @@ void StNpeMaker::read(TString fileName)
           Fill_Inclusive_hist ( bTrg, mEvent , ps );
 	} 
       
-      if(mEvent->isVPDMB())
+      if(mEvent->isVPDMB()&&isGood_MB_Event(mEvent))
 	{
-	  continue; // MB trigger will add soon
 	  Int_t       bTrg=2;
 	  Double_t ps=mPrescales->GetPrescale(mEvent->runId(),VPDMB);
 	  if(ps<0) continue;
@@ -147,7 +148,7 @@ void StNpeMaker::read(TString fileName)
       if(i%1000==0) cout<< " Working on event "<<i<<endl;
     }
 }
-Bool_t StNpeMaker:: Events_Cuts_and_Counting(StDmesonEvent* evt)
+Bool_t StNpeMaker:: Events_Counting(StDmesonEvent* evt)
 {
   if(!evt) return kFALSE;
   Float_t vz = evt->primaryVertex().z();
@@ -236,15 +237,44 @@ void StNpeMaker::Fill_Inclusive_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       mh2Kaon_nSigmaElec[bTrg]->Fill(Trk->gMom().perp(),Trk->nSigmaElectron()-Trk->nSigmaKaon());
       mh2Proton_nSigmaElec[bTrg]->Fill(Trk->gMom().perp(),Trk->nSigmaElectron()-Trk->nSigmaProton());
       //------------------------------------------------------------------------------------------------------
+      if(bTrg==2)
+	{
+
+	  Float_t p=Trk->gMom().mag();
+	  Float_t beta=Trk->btofBeta();
+	  Float_t m_m=p*p*(1/(beta*beta)-1);
+	  mh2_InvMass->Fill(Trk->gMom().perp(),m_m);
+
+	  if(m_m<0.9&&0.86<m_m && fabs(Trk->nSigmaProton())<3)
+	    {
+	      mh2_Proton_nSigmaElec->Fill(Trk->nSigmaElectron(),Trk->gMom().perp());
+	    }
+	  if(m_m<0.021&&0.016<m_m  && fabs(Trk->nSigmaPion())<3)
+	    {
+	      mh2_Pion_nSigmaElec->Fill(Trk->nSigmaElectron(),Trk->gMom().perp());
+	    }
+	  if(m_m<0.247&&0.237<m_m  && fabs(Trk->nSigmaKaon())<3 )
+	    {
+	      mh2_Kaon_nSigmaElec->Fill(Trk->nSigmaElectron(),Trk->gMom().perp());
+	    }
+	  
+	}
+      //------------------------------------------------------------------------------------------------------
+
+
+      
       if(!pass_cut_Trigger_electron(Trk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(Trk,bTrg)) continue; // reject hot tower 
-      if((bTrg==0||bTrg==1)&&Trk->trgTowDsmAdc()>Trk->adc0()*0.1) continue; // since embedding reject those band,keep same with embedding 
+
+      //     if((bTrg==0||bTrg==1)&&Trk->trgTowDsmAdc()>Trk->adc0()*0.1)) continue; // since embedding reject those band,keep same with embedding 
+
       if(((bTrg==0||bTrg==1)&&pass_cut_poe(Trk)&&pass_cut_Match_BEMC(Trk)&&pass_cut_BSMD(Trk))||(bTrg==2&&pass_cut_Tof(Trk)&& pass_Tof_Match(Trk)&&pass_cut_poe(Trk))) // without nsigma e cut ,fit purity
 	{
 	  mh2nSigmaElec[bTrg]->Fill(Trk->nSigmaElectron(),Trk->gMom().perp());
 	  mh2nSigmaElec_ps[bTrg]->Fill(Trk->nSigmaElectron(),Trk->gMom().perp(),ps);
 	  if(pass_cut_nsigmaE(Trk)) // now all the cuts applied 
 	    {
+
 	      mh1electronPt[bTrg]->Fill(Trk->gMom().perp());
 	      mh1electronPt_ps[bTrg]->Fill(Trk->gMom().perp(),ps); // final spectra
 	      //    cout<< " psss includeive "<<endl;
@@ -267,7 +297,7 @@ void StNpeMaker::Fill_PhotonicE_hist (Int_t bTrg,StDmesonEvent * mEvent ,Double_
       if(!pass_cut_eePair(pair)) continue; // pass pair cuts  
       // if(!pass_cut_Trigger_electron(eTrk,bTrg )) continue; // pass triggere cuts     
       if((bTrg==0||bTrg==1)&&isHotTower(eTrk,bTrg)) continue; // reject hot tower 
-       if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
+      //       if(eTrk->trgTowDsmAdc()>eTrk->adc0()*0.1&&(bTrg==0||bTrg==1)) continue; // since embedding reject those band,keep same with embedding 
       if(!pass_cut_acceptance(eTrk)) continue; // apply pt eta cuts on aprimary electron
       if(!pass_cut_Track_qaulity(eTrk)) continue; // pass track quality on primary electron 
       if(bTrg==0||bTrg==1) // HT0 and HT2
@@ -383,19 +413,117 @@ void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTra
 }
 void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTrack* eTrk,StDmesonTrack * pTrk ,Double_t ps)
 {
+  //---------------------------nsigma E calibration-----------------------------------------------
+  if(pass_cut_Tof(eTrk)&&pass_cut_Tof(pTrk)&&-1.5<pTrk->nSigmaElectron())
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+	  mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	  mh3nSigmaE_pT_Mass_unlike[iTrg]->Fill(eTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
+	}
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Fill(pTrk->nSigmaElectron(),pTrk->gMom().perp(),pair->m());
+  	  mh3nSigmaE_pT_Mass_like[iTrg]->Fill(eTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
+  	}
+    }
+  //---------------------------Tof cuts efficiency-----------------------------------------------
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_nsigmaE(pTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+	  mh3tof_beta_pT_Mass_primary_unlike[iTrg]->Fill(1./eTrk->btofBeta()-1,eTrk->gMom().perp(),pair->m());
+	  mh3tof_beta_pT_Mass_partner_unlike[iTrg]->Fill(1./pTrk->btofBeta()-1,eTrk->gMom().perp(),pair->m());
+	}
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh3tof_beta_pT_Mass_primary_like[iTrg]->Fill(1./eTrk->btofBeta()-1,eTrk->gMom().perp(),pair->m());
+	  mh3tof_beta_pT_Mass_partner_like[iTrg]->Fill(1./pTrk->btofBeta()-1,eTrk->gMom().perp(),pair->m());
+     	}
+    }
+  //---------------------------Tof Match efficiency-----------------------------------------------
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+	  mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	}
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	}
+    }
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk)&&pass_Tof_Match(pTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	}
+      
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+	}
+    }
+  //---------------------------all the cuts applied -----------------------------------------------
   if(pass_cut_nsigmaE(eTrk)&&pass_cut_Tof(eTrk)&& pass_Tof_Match(eTrk)&&pass_cut_poe(eTrk))
-   {
-     if(eTrk->charge()!=pTrk->charge())
-       {
+    {
+      if(eTrk->charge()!=pTrk->charge())
+	{
+	  mHitFit_ptUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsFit());
+	  mHitsDedxUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsDedx());
+	  mNTrack_cutUnlike[iTrg]->Fill(eTrk->gMom().perp());
+	  mFitPos_ptUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsFit()/(Float_t)eTrk->nHitsMax());
+	  mgDcaUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->dca());
+  	  mPhi_ptUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->gMom().phi());
+	  mEta_ptUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->gMom().pseudoRapidity());
+	  mDedxUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->dEdx());
+	  mPoeUnlike[iTrg]->Fill(eTrk->gMom().mag()/eTrk->e0(),eTrk->gMom().perp());
+
+	  mh2InvMassUnlike_ps[iTrg]->Fill(pair->m(),eTrk->gMom().perp(),ps);
+	  mh2InvMassUnlike[iTrg]->Fill(pair->m(),eTrk->gMom().perp());
+	  
+
 	 
-       }
-     if(eTrk->charge()==pTrk->charge())
-       {
-	 
-       }
-   }
+	}
+      if(eTrk->charge()==pTrk->charge())
+	{
+	  mHitFit_ptlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsFit());
+	  mHitsDedxlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsDedx());
+	  mNTrack_cutlike[iTrg]->Fill(eTrk->gMom().perp());
+	  mFitPos_ptlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->nHitsFit()/(Float_t)eTrk->nHitsMax());
+	  mgDcalike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->dca()); 
+	  mPhi_ptlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->gMom().phi());
+	  mEta_ptlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->gMom().pseudoRapidity());  
+	  mDedxlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->dEdx()); 
+	  mPoelike[iTrg]->Fill(eTrk->gMom().mag()/eTrk->e0(),eTrk->gMom().perp());
+	  
+	  mh2InvMasslike[iTrg]->Fill(pair->m(),eTrk->gMom().perp());
+	  mh2InvMasslike_ps[iTrg]->Fill(pair->m(),eTrk->gMom().perp(),ps);
+
+	}
+    }
   
 }
+Bool_t StNpeMaker::isGood_HT_Event(StDmesonEvent* evt)
+ {
+   if(!evt) return kFALSE;
+   Float_t vz = evt->primaryVertex().z();
+   if (!(evt->ranking() >cuts::mRanking)) return kFALSE;
+   if(fabs(vz) > cuts::Tpc_vz) return kFALSE;
+   return kTRUE;
+ }
+
+ Bool_t StNpeMaker::isGood_MB_Event(StDmesonEvent* evt)
+ {
+   if(!evt) return kFALSE;
+   Float_t vz = evt->primaryVertex().z();
+   if (!(evt->ranking() >cuts::mRanking)) return kFALSE;
+   if(fabs(vz) > cuts::Tpc_vz) return kFALSE;
+   if(evt->isVPDMB() && fabs(vz-evt->vzVpd())>6) return kFALSE;
+   return kTRUE;
+ }
+
 Bool_t StNpeMaker::pass_cut_eePair(StElectronPair * Pair)
 {
   Float_t pairMass=Pair->m();
@@ -580,8 +708,22 @@ void StNpeMaker::bookObjects(){
       // //electron e dedx calibratio and efficiency
       mh3nSigmaE_pT_Mass_unlike[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_unlikeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
       mh3nSigmaE_pT_Mass_like[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_likeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      // Tof cuts efficiency
+       mh3tof_beta_pT_Mass_primary_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_unlikeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_primary_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_likeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_partner_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_unlikeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_partner_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_likeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
+      // Tof match efficiency
+
+       mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+      
+
 
       
+      // Tof match efficiency
       
       //inclusive electron 
       
@@ -594,6 +736,8 @@ void StNpeMaker::bookObjects(){
       mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
       mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
       mh2nSigmaElec_pT[iTrg]=new TH2F(Form("mh2nSigmaElec_pTTrg%i",iTrg),"",400,0,20,1399,-35,35);
+
+
       
       mh1MB_Nevents[iTrg]->Sumw2();
       mh1HT_Nevents[iTrg]->Sumw2();
@@ -668,11 +812,24 @@ void StNpeMaker::bookObjects(){
       mh3nSigmaEPart_pT_Mass_like_pass[iTrg]->Sumw2();
       mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]->Sumw2();
       mh3nSigmaEPart_pT_Mass_like_total[iTrg]->Sumw2();
+      // Tof cuts efficiency
+       mh3tof_beta_pT_Mass_primary_unlike[iTrg]->Sumw2();
+       mh3tof_beta_pT_Mass_primary_like[iTrg]->Sumw2();
+       mh3tof_beta_pT_Mass_partner_unlike[iTrg]->Sumw2();
+       mh3tof_beta_pT_Mass_partner_like[iTrg]->Sumw2();
+      // Tof match efficiency
+
+       mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]->Sumw2();
+       mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]->Sumw2();
+       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Sumw2();
+       mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Sumw2();
+
       
       //electron e dedx calibratio and efficiency
       mh3nSigmaE_pT_Mass_unlike[iTrg]->Sumw2();
       mh3nSigmaE_pT_Mass_like[iTrg]->Sumw2();
-
+      
+      
       // inclusive e
       mh2nSigmaElec[iTrg]->Sumw2();
       mh2nSigmaElec_ps[iTrg]->Sumw2();
@@ -684,6 +841,17 @@ void StNpeMaker::bookObjects(){
       mh2Proton_nSigmaElec[iTrg]->Sumw2(); 
       mh2nSigmaElec_pT[iTrg]->Sumw2();
     }
+  mh2_InvMass=new TH2F("mh2_InvMass","",320,0,4,560,-0.2,1.2);
+  mh2_Pion_nSigmaElec=new TH2F("mh2_Pion_nSigmaElec","",699,-35,35,200,0,20.);
+  mh2_Kaon_nSigmaElec=new TH2F("mh2_Kaon_nSigmaElec","",699,-35,35,200,0,20.);
+  mh2_Proton_nSigmaElec=new TH2F("mh2_Proton_nSigmaElec","",699,-35,35,200,0,20.);
+
+  mh2_InvMass->Sumw2();
+  mh2_Pion_nSigmaElec->Sumw2();
+  mh2_Kaon_nSigmaElec->Sumw2();
+  mh2_Proton_nSigmaElec->Sumw2();
+  
+  
 }
 void StNpeMaker::writeObjects(){
   
@@ -767,6 +935,18 @@ void StNpeMaker::writeObjects(){
       //electron e dedx calibratio and efficiency
       mh3nSigmaE_pT_Mass_unlike[iTrg]->Write();
       mh3nSigmaE_pT_Mass_like[iTrg]->Write();
+      
+      // Tof cuts efficiency
+       mh3tof_beta_pT_Mass_primary_unlike[iTrg]->Write();
+       mh3tof_beta_pT_Mass_primary_like[iTrg]->Write();
+       mh3tof_beta_pT_Mass_partner_unlike[iTrg]->Write();
+       mh3tof_beta_pT_Mass_partner_like[iTrg]->Write();
+      // Tof match efficiency
+
+       mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]->Write();
+       mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]->Write();
+       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Write();
+       mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Write();
 
       
       // inclusive e
@@ -780,4 +960,9 @@ void StNpeMaker::writeObjects(){
       mh2Proton_nSigmaElec[iTrg]->Write(); 
       mh2nSigmaElec_pT[iTrg]->Write();
     }
+  mh2_InvMass->Write();
+  mh2_Pion_nSigmaElec->Write();
+  mh2_Kaon_nSigmaElec->Write();
+  mh2_Proton_nSigmaElec->Write();
+
 }

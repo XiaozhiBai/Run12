@@ -42,8 +42,10 @@ class StNpeMaker
   void writeObjects();
 
   void   Run_QA(StDmesonEvent * ); 
-  Bool_t isGoodEvent(StDmesonEvent*);
-  Bool_t Events_Cuts_and_Counting(StDmesonEvent *);
+  Bool_t isGood_HT_Event(StDmesonEvent*);
+  Bool_t isGood_MB_Event(StDmesonEvent*);
+
+  Bool_t Events_Counting(StDmesonEvent *);
   void   Fill_PhotonicE_hist (Int_t ,StDmesonEvent * ,Double_t );
   void   Fill_Inclusive_hist (Int_t ,StDmesonEvent * ,Double_t );
   void   Fill_pair_hist_HT(Int_t,StElectronPair*,StDmesonTrack*,StDmesonTrack*,Double_t);
@@ -157,10 +159,24 @@ class StNpeMaker
   TH3F *mh3nSigmaEPart_pT_Mass_unlike_total[nTrg];
   TH3F *mh3nSigmaEPart_pT_Mass_like_total[nTrg];
 
+  // Tof cuts efficiency
+  TH3F *mh3tof_beta_pT_Mass_primary_unlike[nTrg];
+  TH3F *mh3tof_beta_pT_Mass_primary_like[nTrg];
+  TH3F *mh3tof_beta_pT_Mass_partner_unlike[nTrg];
+  TH3F *mh3tof_beta_pT_Mass_partner_like[nTrg];
+  // Tof match efficiency
+
+  TH2F *mh2Part_Ele_MassVspT_noTofMatchcut_unlike[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_noTofMatchcut_like[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_TofMatchcut_unlike[nTrg];
+  TH2F *mh2Part_Ele_MassVspT_TofMatchcut_like[nTrg];
   
   //electron e dedx calibratio and efficiency
   TH3F *mh3nSigmaE_pT_Mass_unlike[nTrg];
   TH3F *mh3nSigmaE_pT_Mass_like[nTrg];
+
+  /* TH3F *mh3nSigmaE_pT_Partner_Mass_unlike[nTrg]; */
+  /* TH3F *mh3nSigmaE_pT_Partner_Mass_like[nTrg]; */
   
   
 
@@ -178,6 +194,11 @@ class StNpeMaker
   TH2F * mh2Proton_nSigmaElec[nTrg];
   TH2F * mh2nSigmaElec_pT[nTrg];
 
+  // tof hadron
+  TH2F *mh2_Pion_nSigmaElec;
+  TH2F *mh2_Kaon_nSigmaElec;
+  TH2F *mh2_Proton_nSigmaElec;
+  TH2F *mh2_InvMass;;
   
   
   ClassDef(StNpeMaker, 1)
