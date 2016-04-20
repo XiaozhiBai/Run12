@@ -115,14 +115,56 @@ cd Macros/NPE_HT/Photonic_RE_efficiency/
 root -l -l -b -q Photonic_RE_relative_contribution.C++
 root -l -l -b -q Photonic_RE_efficiency.C++
 
+6. nsigma Electron calibration
+cd /global/homes/x/xiao00/work/run12/Macros/NPE_HT/nSigmaE_Calibration
+root -l -b -q nSigma_Electron_Calibration_primary.C++
+
+7. Inclusive electron purity
+cp ../nSigmaE_Calibration/nSigmaE_calibration_primary.root .
+root -l -b -q  purity.C++
+
+8. dEdx cut efficiency
+/global/homes/x/xiao00/work/run12/Macros/NPE_HT/dEdxCut_efficiency
+ root -l -b -q nSigma_Electron_CutEfficiency_primary.C++
+ root -l -b -q nSigma_Electron_Cut_efficiency.C++
+
+9. BEMC cuts efficiency
+   root -l -b -q BEMC_efficiency.C++
+
+10. Events counting
+cd /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Event
+root -l -b -q Draw_Data_Event.C++
+
+11. Extract Npe cross section
+
+cd /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Cross_Section
+
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/dEdxCut_efficiency/BEMC_efficiency.root  Input/
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Tracking_efficiency/Tracking_efficiency_HT.root  Input/
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Trigger_efficiency/TrigEfficiency_HT.root  Input/
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Photonic_RE_efficiency/Photonic_re_Efficiency.root   Input/
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Purity/purity_HT.root  Input/
+cp /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Purity/purity_HT.root  Input/
+cp ../RootFile/Root_File_4_13/hist_4_13.root Input/
+
+root -l -b -q NPE_Cross_section.C++
+
+12. Draw result
+cd /global/homes/x/xiao00/work/run12/Macros/NPE_HT/Draw_Result
+cp ../Cross_Section/run12_Npe_HT.root .
+root -l Draw_run12_Npe.C++
+
+
+Selected  Slides for cofference
+
+Non-photonic electron production in p+p collisions at √s=200 GeV.
+Xiaozhi Bai for STAR collaboration oral presentation to APS 2015 April Meeting, Baltimore, MD (2015/4)
+https://www.star.bnl.gov/protected/heavy/xiao00/Run12/QM2015/QM2015_v8_3.pdf
+
+Measurements of Open Heavy Flavor Production in Semi-leptonic Channels in p+p, U+U and Au+Au collisions at STAR.
+Xiaozhi Bai for STAR collaboration oral presentation to Quark Matter 2015, Kobe,Japan.
+https://www.star.bnl.gov/protected/heavy/xiao00/Run12/PPt/APS_xiaozhi_v8.pdf
 
 
 
-
-
-
-
-5 Slides for cofference
-
-https://www.star.bnl.gov/protected/heavy/xiao00/Lowpt_NPE_analysis.pdf
 
