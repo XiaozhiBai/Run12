@@ -1,0 +1,321 @@
+/*--------------------Xiaozhi------------------------------------ 
+
+this macro for the Hadron mean calibration
+
+ at  low Pt electron purity
+
+---------------------------------------------------------------
+*/
+
+#include<fstream>
+#include <iostream>
+#include "TLatex.h"
+#include "TStyle.h"
+#include "TH3F.h"
+#include "TF1.h"
+#include "TMath.h"
+#include "TLegend.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TFile.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+#include "TRandom3.h"
+#include "../mBinning_MB.h"
+using namespace std;
+
+const int Nhist=3;
+// TString XTitlename_2[Nhist]={"p_{T}/GeV/c","p_{T}/GeV/c","p_{T}/GeV/c"};
+// TString Profile_Histname_2[Nhist]={"Pion","kaon","Proton"};
+// TString YTitlename_2[Nhist]={"n#sigma e-n#sigma #pi","n#sigma e-n#sigma kaon","n#sigma e-n#sigma proton"};
+
+void Draw_Projection(TH1F * a[][NpT_bins_run12_MB],Int_t,Float_t ,Float_t, char *,Float_t mean[],Float_t sigma[],Float_t mean_err[],Float_t sigma_err[]);//,TH1F *,TH1F *,TH1F *,TH1F *);
+//void Draw_Hadron_Diff(TH2F * a[],TH1F * b[]);
+void Draw_Mean_sigma(TH1F *,TH1F *,TH1F *,TH1F *,TH1F *,TH1F *);
+
+char buf[1024];
+
+int Hadron_calibration(){
+  //  gStyle->SetOptStat(00000);
+  gStyle->SetTitleSize(0.05,"XY");
+  gStyle->SetTitleFontSize(0.06);
+  gStyle->SetTitleOffset(1,"X");
+  gStyle->SetTitleOffset(1,"Y");
+  gStyle->SetPadTopMargin(0.13);
+  gStyle->SetPadRightMargin(0.02);
+  gStyle->SetPadBottomMargin(0.13);
+  gStyle->SetPadLeftMargin(0.1); 
+
+  TString HistName[Nhist]={"mh2_Pion_nSigmaElec","mh2_Kaon_nSigmaElec","mh2_Proton_nSigmaElec"};
+
+  TH2F * Hadron2D[3];
+  TH1F * Hadron1D[3][NpT_bins_run12_MB];
+
+
+  TFile * inFile= new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+  for(Int_t i=0;i<Nhist;i++)
+    {
+      Hadron2D[i]=(TH2F * ) inFile->Get(HistName[i]);
+
+    }
+  
+  for(Int_t ihist=0;ihist<Nhist;ihist++)
+    {
+      for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+	{
+	  sprintf(buf,"nSigmaE_Pt%i",ipt);
+	  Hadron1D[ihist][ipt]=(TH1F * ) Hadron2D[ihist]->ProjectionX(Hadron2D[ihist]->GetName()+TString("Projection")+buf,ptBinX_low[ipt],ptBinX_high[ipt]);
+
+	}
+    }
+
+
+  Float_t Pion_mean[NpT_bins_run12_MB];
+  Float_t Pion_sigma[NpT_bins_run12_MB];
+  Float_t Kaon_mean[NpT_bins_run12_MB];
+  Float_t Kaon_sigma[NpT_bins_run12_MB];
+  Float_t Proton_mean[NpT_bins_run12_MB];
+  Float_t Proton_sigma[NpT_bins_run12_MB];
+
+  //-------------------
+  Float_t Pion_mean_Err[NpT_bins_run12_MB];
+  Float_t Pion_sigma_Err[NpT_bins_run12_MB];
+  Float_t Kaon_mean_Err[NpT_bins_run12_MB];
+  Float_t Kaon_sigma_Err[NpT_bins_run12_MB];
+  Float_t Proton_mean_Err[NpT_bins_run12_MB];
+  Float_t Proton_sigma_Err[NpT_bins_run12_MB];
+
+  // TFile *file_from_Fit=new TFile("Mean_Sigma_Hadron.root","READ");
+  
+  // TH1F * mh1Pion_Mean= ( TH1F *)file_from_Fit->Get("mh1Pion_Mean");
+  // TH1F * mh1Pion_Sigma= (TH1F *)file_from_Fit->Get("mh1Pion_Sigma");
+
+  // TH1F * mh1Kaon_Mean= ( TH1F *)file_from_Fit->Get("mh1K_K_Mean");
+  // TH1F * mh1Kaon_Sigma= (TH1F *)file_from_Fit->Get("mh1K_K_Sigma");
+
+  // TH1F * mh1Proton_Mean= ( TH1F *)file_from_Fit->Get("mh1K_P_Mean");
+  // TH1F * mh1Proton_Sigma= (TH1F *)file_from_Fit->Get("mh1K_P_Sigma");
+
+  // TH1F * mh1Ele_Mean= ( TH1F *)file_from_Fit->Get("mh1Electron_Mean");
+  // TH1F * mh1Ele_Sigma= (TH1F *)file_from_Fit->Get("mh1Electron_Sigma");
+  
+  // TH1F * Pion_Mean= ( TH1F *)file_from_Fit->Get("mh1Pion_Mean");
+  // TH1F * Pion_Sigma= (TH1F *)file_from_Fit->Get("mh1Pion_Sigma");
+ 
+
+  Float_t Xaxis_low_pion=-10;
+  Float_t Xaxis_high_pion=0;
+  char temp[1024];
+  sprintf(temp,"Pion");
+  //  Hadron1D[0][1]->Draw();
+
+  Draw_Projection(Hadron1D,0,Xaxis_low_pion,Xaxis_high_pion,temp,Pion_mean,Pion_sigma,Pion_mean_Err,Pion_sigma_Err);//,mh1Pion_Mean,mh1Pion_Sigma, mh1Ele_Mean,Hadron_Diff_Profile[0]);
+
+
+  
+  Float_t Xaxis_low_kaon=-10;
+  Float_t Xaxis_high_kaon=25;
+  
+  sprintf(temp,"Kaon");
+  
+  Draw_Projection(Hadron1D,1,Xaxis_low_kaon ,Xaxis_high_kaon,temp,Kaon_mean,Kaon_sigma,Kaon_mean_Err,Kaon_sigma_Err);//,mh1Kaon_Mean,mh1Kaon_Sigma, mh1Ele_Mean,Hadron_Diff_Profile[1]);
+    
+    Float_t Xaxis_low_proton=-10;
+    Float_t Xaxis_high_proton=30;
+  
+  sprintf(temp,"Proton");
+  
+  Draw_Projection(Hadron1D,2,Xaxis_low_proton ,Xaxis_high_proton,temp,Proton_mean,Proton_sigma,Proton_mean_Err,Proton_sigma_Err);//,mh1Proton_Mean,mh1Proton_Sigma, mh1Ele_Mean,Hadron_Diff_Profile[2]);
+
+
+  TH1F *  mh1_Pion_mean=new TH1F("mh1_Pion_mean","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *  mh1_Kaon_mean=  new TH1F("mh1_Kaon_mean","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *  mh1_Proton_mean=new TH1F("mh1_Proton_mean","",NpT_bins_run12_MB,pt_run12_MB);
+  
+  TH1F *  mh1_Pion_sigma=new TH1F("mh1_Pion_sigma","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *  mh1_Kaon_sigma=new TH1F("mh1_Kaon_sigma","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *  mh1_Proton_sigma=new TH1F("mh1_Proton_sigma","",NpT_bins_run12_MB,pt_run12_MB); 
+  
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+    {
+
+      mh1_Pion_mean->SetBinContent(ipt+1,Pion_mean[ipt]);
+      mh1_Pion_sigma->SetBinContent(ipt+1,Pion_sigma[ipt]);
+
+      mh1_Kaon_mean->SetBinContent(ipt+1,Kaon_mean[ipt]);
+      mh1_Kaon_sigma->SetBinContent(ipt+1,Kaon_sigma[ipt]);
+    
+      mh1_Proton_mean->SetBinContent(ipt+1,Proton_mean[ipt]);
+      mh1_Proton_sigma->SetBinContent(ipt+1,Proton_sigma[ipt]);
+      //--------------------------------------------
+      mh1_Pion_mean->SetBinError(ipt+1,Pion_mean_Err[ipt]);
+      mh1_Pion_sigma->SetBinError(ipt+1,Pion_sigma_Err[ipt]);
+      
+      mh1_Kaon_mean->SetBinError(ipt+1,Kaon_mean_Err[ipt]);
+      mh1_Kaon_sigma->SetBinError(ipt+1,Kaon_sigma_Err[ipt]);
+      
+      mh1_Proton_mean->SetBinError(ipt+1,Proton_mean_Err[ipt]);
+      mh1_Proton_sigma->SetBinError(ipt+1,Proton_sigma_Err[ipt]);
+    }
+
+  TFile *file_Tof=new TFile("TOF_ONlY_DATA.root","RECREATE");
+
+
+  mh1_Pion_mean->Write();
+  mh1_Pion_sigma->Write();
+
+  mh1_Kaon_mean->Write();
+  mh1_Kaon_sigma->Write(); 
+    
+  mh1_Proton_mean->Write();
+  mh1_Proton_sigma->Write();
+
+ 
+  
+  Draw_Mean_sigma(mh1_Pion_mean,mh1_Pion_sigma,mh1_Kaon_mean,mh1_Kaon_sigma,mh1_Proton_mean,mh1_Proton_sigma);
+}
+
+void Draw_Projection(TH1F * Pion[][NpT_bins_run12_MB], Int_t flag,Float_t Xaxis_low,Float_t Xaxis_high,char temp[],Float_t Mean[],Float_t Sigma[],Float_t Mean_err[],Float_t Sigma_err[])
+  
+{
+  
+   // shift->Draw();
+     gStyle->SetOptFit(1111);
+     TCanvas *c2=new TCanvas("c2","",1200,1000);
+     TCanvas *c3=new TCanvas("c3","",1200,1000);
+     
+     
+     c2->Divide(3,2);
+     c3->Divide(3,2);
+     
+  int Npad=1;
+
+  // return;
+
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+    {
+      
+      TF1 *f1 = new TF1(TString("f1"),"gaus",-30,30);
+      
+      f1->SetLineColor(2);
+      
+      Pion[flag][ipt]->SetLineColor(1);
+      Pion[flag][ipt]->SetMarkerStyle(20);
+
+      Float_t  BinCenter=Pion[flag][ipt]->GetBinCenter(Pion[flag][ipt]->GetMaximumBin());
+      
+      Pion[flag][ipt]->GetXaxis()->SetRangeUser(BinCenter-5,BinCenter+5);
+
+      Pion[flag][ipt]->SetTitle(mh1_pT_Title[ipt]);
+      
+      Pion[flag][ipt]->GetXaxis()->SetTitle("NSigmaE");
+      Pion[flag][ipt]->GetYaxis()->SetTitle("Counts");
+      
+      if(ipt<6)
+	{
+	  c2->cd(Npad++);
+	  gPad->SetLogy(0);
+	}
+      else if(ipt<12)
+	{
+	  c3->cd(Npad++);
+	  gPad->SetLogy(0);
+	}
+
+
+      if(Npad==7)
+	Npad=1;    
+	Pion[flag][ipt]->Fit("f1","R","same",BinCenter-3.,BinCenter+3.);
+      
+
+
+
+      Mean[ipt]=f1->GetParameter(1);
+
+      Sigma[ipt]=f1->GetParameter(2);
+ 
+      Mean_err[ipt]=f1->GetParError(1);
+
+      Sigma_err[ipt]=f1->GetParError(2);
+
+      
+      // TLegend *legend  = new TLegend(0.13,0.65,0.3,0.85);
+      // legend ->AddEntry(Pion[0][ipt],"Tof Only Data","lpe");
+      // legend ->AddEntry(f1,"Tof Only Data Fit","lpe");
+      // legend ->AddEntry(f_Fit,"Purity 4 Gauss Fit","lpe");
+      // //  legend ->AddEntry(f_shift,"Shift Nsigma E","lpe");
+      
+      //  //  legend ->AddEntry(nsigmaElike[ipt]," Like sign","lpe");
+      //  // legend ->AddEntry(nsigmaEUnlike_like[ipt]," Unlike-like","lpe");
+      //  legend ->SetBorderSize(0);
+      //  legend ->SetTextSize(0.045);
+      //  legend ->SetFillStyle(0);
+      //  legend ->Draw("same");
+      
+
+    }
+
+
+  c2->SaveAs(temp+TString("nsigmaE_c2.pdf"));
+  c3->SaveAs(temp+TString("nsigmaE_c3.pdf"));
+  
+
+}
+void Draw_Mean_sigma(TH1F *mh1_Pion_mean,TH1F *mh1_Pion_sigma,TH1F *mh1_Kaon_mean,TH1F *mh1_Kaon_sigma,TH1F *mh1_Proton_mean,TH1F *mh1_Proton_sigma)
+  {
+
+    gStyle->SetOptStat(0000);
+    TCanvas *c4=new TCanvas("c4","",800,600);
+    TH2F *h4=new TH2F("h4","",100,1,4,100,-8,2);
+    h4->GetYaxis()->SetTitle("Tof hadron n#sigma_{e}");
+    h4->GetXaxis()->SetTitle("p_{T} GeV/c");
+
+    h4->Draw();
+
+
+    mh1_Pion_mean->SetMarkerStyle(20);
+    mh1_Pion_sigma->SetMarkerStyle(24);
+    mh1_Kaon_mean->SetMarkerStyle(20);
+    mh1_Kaon_sigma->SetMarkerStyle(24);
+    mh1_Proton_mean->SetMarkerStyle(20);
+    mh1_Proton_sigma->SetMarkerStyle(24);
+
+    mh1_Pion_mean->SetMarkerColor(2);
+    mh1_Pion_sigma->SetMarkerColor(2);
+    mh1_Kaon_mean->SetMarkerColor(3);
+    mh1_Kaon_sigma->SetMarkerColor(3);
+    mh1_Proton_mean->SetMarkerColor(4);
+    mh1_Proton_sigma->SetMarkerColor(4);
+
+    mh1_Pion_mean->SetLineColor(2);
+    mh1_Pion_sigma->SetLineColor(2);
+    mh1_Kaon_mean->SetLineColor(3);
+    mh1_Kaon_sigma->SetLineColor(3);
+    mh1_Proton_mean->SetLineColor(4);
+    mh1_Proton_sigma->SetLineColor(4);
+
+    mh1_Pion_mean->Draw("samePE");
+    mh1_Pion_sigma->Draw("samePE");
+    mh1_Kaon_mean->Draw("samePE");
+    mh1_Kaon_sigma->Draw("samePE");
+    mh1_Proton_mean->Draw("samePE");
+    mh1_Proton_sigma->Draw("samePE");
+
+      TLegend *legend  = new TLegend(0.35,0.45,0.6,0.75);
+      legend ->AddEntry(mh1_Pion_mean,"#pi mean","lp");
+      legend ->AddEntry(mh1_Pion_sigma,"#pi sigma","lp");
+
+      legend ->AddEntry(mh1_Kaon_mean,"kaon mean","lp");
+      legend ->AddEntry(mh1_Kaon_sigma,"kaon sigma","lp");
+
+      legend ->AddEntry(mh1_Proton_mean,"proton mean","lp");
+      legend ->AddEntry(mh1_Proton_sigma,"proton sigma","lp");
+
+
+      legend ->SetBorderSize(0);
+      legend ->SetTextSize(0.045);
+      legend ->SetFillStyle(0);
+      legend ->Draw("same");
+    
+    c4->SaveAs("Tof_hadron_mean_sigma.pdf");
+  }

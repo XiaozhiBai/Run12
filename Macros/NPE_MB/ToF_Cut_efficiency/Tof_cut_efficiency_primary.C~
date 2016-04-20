@@ -1,0 +1,319 @@
+/*-------------------------------------------------------------- 
+
+  run14 HT Npe analyia 
+
+  This macro is for the photo electron nsigma electron calibration  for the nsigma Electran calibration in different Pt bin
+  ---------------------------------------------------------------
+
+  Mon Feb 15 00:40:29 CST 2016
+
+  by Xiaozhi
+
+*/
+#include<fstream>
+#include <iostream>
+#include<iomanip>
+#include "TLatex.h"
+#include "TStyle.h"
+#include "TH3F.h"
+#include "TF1.h"
+#include "TMath.h"
+#include "TLegend.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TFile.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+#include "TProfile.h"
+#include "TVirtualFitter.h"
+#include "../mBinning_MB.h"
+
+void Fit_electron_nsigma_Mean(TH1F * a[], TH1F *b[],TH1F *c[]);
+TLatex* drawLatex(Double_t, Double_t, char* , Int_t , Double_t , Int_t);
+
+using namespace std;
+
+const int nTrg=1;
+
+char buf[1024];
+
+
+TFile *file=new TFile("../RootFile/Root_File_4_12/hist_4_12.root","READ");
+
+ofstream outdata("Tof_beta_mean_And_sigma.dat");
+void Tof_cut_efficiency_primary()
+{
+  TH3F::SetDefaultSumw2();  
+  TH2F::SetDefaultSumw2();  
+  TH1F::SetDefaultSumw2();  
+ 
+  // gStyle->SetOptStat(00000);
+  // gStyle->SetTitleSize(0.05,"XY");
+  // gStyle->SetTitleFontSize(0.06);
+  // gStyle->SetTitleOffset(1,"X");
+  // gStyle->SetTitleOffset(1,"Y");
+  // gStyle->SetPadTopMargin(0.13);
+  // gStyle->SetPadRightMargin(0.02);
+  // gStyle->SetPadBottomMargin(0.13);
+  // gStyle->SetPadLeftMargin(0.1); 
+  
+  TH3F *mh3Tof_beta_pT_Mass_unlike[nTrg];
+  TH3F *mh3Tof_beta_pT_Mass_like[nTrg];
+  TH3F *mh3Tof_beta_pT_Mass_unlike_like[nTrg];
+  
+
+  TString   mh3Tof_beta_pT_Mass_unlike_name[nTrg]={"mh3tof_beta_pT_Mass_primary_unlikeTrg2"};
+  TString   mh3Tof_beta_pT_Mass_like_name[nTrg]={"mh3tof_beta_pT_Mass_primary_likeTrg2"};
+   
+  TH1F *mh1TofBeta_unlike[NpT_bins_run12_MB];
+  TH1F *mh1NisgmaE_like[NpT_bins_run12_MB];
+  TH1F *mh1TofBeta_unlike_like[NpT_bins_run12_MB];
+
+
+  for(Int_t iTrg=0;iTrg<nTrg;iTrg++)
+    {
+      mh3Tof_beta_pT_Mass_unlike[iTrg]=(TH3F *) file->Get(mh3Tof_beta_pT_Mass_unlike_name[iTrg]);
+      mh3Tof_beta_pT_Mass_like[iTrg]=(TH3F *) file->Get(mh3Tof_beta_pT_Mass_like_name[iTrg]);
+    }
+
+  mh3Tof_beta_pT_Mass_unlike[0]->RebinX(6);
+  mh3Tof_beta_pT_Mass_like[0]->RebinX(6);
+
+  
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+    {
+      sprintf(buf,"Beta_unlike_pt%i",ipt);
+      mh1TofBeta_unlike[ipt]=(TH1F *) mh3Tof_beta_pT_Mass_unlike[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20);
+      sprintf(buf,"Beta_like_pt%i",ipt);
+      mh1NisgmaE_like[ipt]=(TH1F *) mh3Tof_beta_pT_Mass_like[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20);
+
+      sprintf(buf,"Beta_unlike_like_pt%i",ipt);
+      mh1TofBeta_unlike_like[ipt]=(TH1F *)   mh1TofBeta_unlike[ipt]->Clone(buf);
+      mh1TofBeta_unlike_like[ipt]->Add(mh1NisgmaE_like[ipt],-1);
+    }
+  Fit_electron_nsigma_Mean(mh1TofBeta_unlike,mh1NisgmaE_like,mh1TofBeta_unlike_like);
+}
+void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof_beta_like[NpT_bins_run12_MB],TH1F *Tof_beta_unlike_like[NpT_bins_run12_MB])
+{
+  gStyle->SetOptFit(1111);
+  
+  TH1F *Mean=new TH1F("Mean","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Mean_u=new TH1F("Mean_u","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Mean_d=new TH1F("Mean_d","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Mean_Fit=new TH1F("Mean_Fit","",NpT_bins_run12_MB,pt_run12_MB);
+
+  TH1F *Sigma=new TH1F("Sigma","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Sigma_u=new TH1F("Sigma_u","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Sigma_d=new TH1F("Sigma_d","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *Sigma_Fit=new TH1F("Sigma_Fit","",NpT_bins_run12_MB,pt_run12_MB);
+  
+  
+  TCanvas *c2=new TCanvas("c2","",1200,1000);
+  TCanvas *c3=new TCanvas("c3","",1200,1000);
+  
+  c2->Divide(3,2,0.001,0.001);
+  c3->Divide(3,2,0.001,0.001);
+  
+  int Npad=1;
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+    {
+      TF1 *f1 = new TF1(TString("f1"),"[0]*TMath::Gaus(x,[1],[2],1)",-0.5,0.5);    
+       f1->SetParameter(1,0);
+       f1->SetParameter(2,0.01);
+      
+       f1->SetParLimits(1,-0.1,0.1);
+      
+
+
+      if(ipt<6)
+        {
+          c2->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+      else 
+        {
+          c3->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+      if(Npad==7) Npad=1;
+
+      Tof_beta_unlike_like[ipt]->SetTitle(mh1_pT_Title[ipt]);
+      Tof_beta_unlike_like[ipt]->GetXaxis()->SetTitle("1/#beta-1");
+      Tof_beta_unlike_like[ipt]->GetYaxis()->SetTitle("Counts");
+
+      Tof_beta_unlike_like[ipt]->GetYaxis()->SetRangeUser(1,1.2*Tof_beta_unlike[ipt]->GetMaximum());
+      Tof_beta_unlike_like[ipt]->GetXaxis()->SetRangeUser(-0.1,0.1);      
+      Tof_beta_unlike_like[ipt]->SetMarkerStyle(20);
+      Tof_beta_unlike_like[ipt]->SetMarkerColor(4);
+
+
+      Tof_beta_unlike[ipt]->SetLineColor(1);
+      Tof_beta_like[ipt]->SetLineColor(3);
+      Tof_beta_unlike_like[ipt]->SetLineColor(4);
+
+      if(ipt<8)
+      Tof_beta_unlike_like[ipt]->Fit(f1,"R","same",-0.1,0.1);
+      else {
+	Tof_beta_unlike_like[ipt]->Fit(f1,"RLL","same",-0.1,0.1);
+      }
+
+
+      TVirtualFitter * fitter = TVirtualFitter::GetFitter();
+      assert(fitter != 0);
+      double * cov =fitter->GetCovarianceMatrix();
+      
+      cout<<cov[0]<<" "<<sqrt(cov[4])<<" "<<sqrt(cov[8])<<" "<<cov[7]<<" meanerr="<<f1->GetParError(1)<<"sigmaerr "<<f1->GetParError(2)<<endl;
+      outdata << (pt_run12_MB[ipt]+pt_run12_MB[ipt+1])/2       << "  " << 0.5*(pt_run12_MB[ipt+1]-pt_run12_MB[ipt])    << "  "
+              << f1->GetParameter(1)     << "  " << cov[4]    << "  " 
+              << f1->GetParameter(2)     << "  " << cov[8]    << "  "<<cov[7]<< endl; 
+
+
+
+      Tof_beta_unlike[ipt]->Draw("same");
+      Tof_beta_unlike_like[ipt]->Draw("same");
+      Tof_beta_like[ipt]->Draw("same");
+
+      TLegend *legend = new TLegend(0.15,0.65,0.4,0.8);
+      legend->AddEntry(Tof_beta_unlike[ipt],"Unlike ","lpe");
+      legend->AddEntry(Tof_beta_like[ipt],"Like ","lpe");
+      legend->AddEntry(Tof_beta_unlike_like[ipt],"Unlike - Like ","lpe");
+      legend->SetBorderSize(0);
+      legend->SetFillStyle(0);
+      legend->SetTextSize(0.035);
+      legend->Draw("same");
+
+
+
+
+      
+      Mean->SetBinContent(ipt+1,f1->GetParameter(1));
+      Mean->SetBinError(ipt+1,f1->GetParError(1));
+
+      Mean_u->SetBinContent(ipt+1,f1->GetParameter(1)+f1->GetParError(1));
+      Mean_u->SetBinError(ipt+1,f1->GetParError(1));
+      
+      Mean_d->SetBinContent(ipt+1,f1->GetParameter(1)-f1->GetParError(1));
+      Mean_d->SetBinError(ipt+1,f1->GetParError(1));
+
+      Sigma->SetBinContent(ipt+1,f1->GetParameter(2));
+      Sigma->SetBinError(ipt+1,f1->GetParError(2));
+
+      Sigma_u->SetBinContent(ipt+1,f1->GetParameter(2)+f1->GetParError(2));
+      Sigma_u->SetBinError(ipt+1,f1->GetParError(2));
+      
+      Sigma_d->SetBinContent(ipt+1,f1->GetParameter(2)-f1->GetParError(2));
+      Sigma_d->SetBinError(ipt+1,f1->GetParError(2));
+
+    }
+
+
+  Mean->SetMarkerColor(1);
+  Mean->SetLineColor(1);
+  Mean->SetMarkerStyle(20);
+  
+  Sigma->SetMarkerColor(1);
+  Sigma->SetLineColor(1);
+  Sigma->SetMarkerStyle(24);
+
+  c2->SaveAs("nsigmaE_c2_primary.pdf");
+  c3->SaveAs("nsigmaE_c3_primary.pdf");
+
+  
+  //  return;
+
+  gStyle->SetOptStat(00000);
+  
+  TCanvas *c5=new TCanvas("c5","",1200,1000);
+  TH2F *h5_a=new TH2F("h5_a","",10,1,4,100,-0.05,0.05);
+  h5_a->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+  h5_a->GetYaxis()->SetTitle("#beta Mean");
+    
+  
+  TF1 *fmean=new TF1(TString("fmean"),"[0]",1.2,3);
+  TF1 *fmean_u=new TF1(TString("fmean_u"),"[0]",1.2,3);
+  TF1 *fmean_d=new TF1(TString("fmean_d"),"[0]",1.2,3);
+  TF1 *fsigma=new TF1(TString("fsigma"),"[0]",1.2,3);
+  TF1 *fsigma_u=new TF1(TString("fsigma_u"),"[0]",1.2,3);
+  TF1 *fsigma_d=new TF1(TString("fsigma_d"),"[0]",1.2,3);  
+  
+  fmean_u->SetLineStyle(7);
+  fmean_d->SetLineStyle(7);
+
+  fsigma_u->SetLineStyle(7);
+  fsigma_d->SetLineStyle(7);
+
+  h5_a->Draw();
+  Mean->Draw("same");
+  Sigma->Draw("same");
+  
+
+  Mean->Fit(fmean,"R","same",1.2,3); 
+  Mean_u->Fit(fmean_u,"R0","same",1.2,3); 
+  Mean_d->Fit(fmean_d,"R0","same",1.2,3); 
+  
+  Sigma->Fit(fsigma,"R","same",1.2,3);
+  Sigma_u->Fit(fsigma_u,"R0","same",1.2,3);
+  Sigma_d->Fit(fsigma_d,"R0","same",1.2,3);
+  
+  fmean_u->SetParameter(0,fmean->GetParameter(0)+0.0015);
+  fmean_d->SetParameter(0,fmean->GetParameter(0)-0.0015);
+
+  fsigma_u->SetParameter(0,fsigma->GetParameter(0)+0.0015);
+  fsigma_d->SetParameter(0,fsigma->GetParameter(0)-0.0015);
+  
+
+
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
+    {
+
+      Mean_Fit->SetBinContent(ipt+1,fmean->GetParameter(0));
+      Mean_Fit->SetBinError(ipt+1,0.0015);
+      
+      Sigma_Fit->SetBinContent(ipt+1,fsigma->GetParameter(0));
+      Sigma_Fit->SetBinError(ipt+1,0.0015);
+    }
+
+  fmean_d->Draw("same");
+  fmean_u->Draw("same");
+  fsigma_u->Draw("same");
+  fsigma_d->Draw("same");
+
+  // sprintf(buf,"pol0:  %2.2f +- %4.5f",fmean->GetParameter(0),fmean->GetParameter(0));
+  // drawLatex(0.45,0.75,buf,70,0.035,2);
+  // sprintf(buf,"pol0:  %2.2f +- %4.5f",fsigma->GetParameter(0),fsigma->GetParameter(0));
+  // drawLatex(0.45,0.55,buf,70,0.035,2);
+  
+  sprintf(buf,"Electron beta Mean: pol0:  %2.4f +- %4.3f",fmean->GetParameter(0),0.0015);
+  drawLatex(0.15,0.35,buf,70,0.035,2);
+  sprintf(buf,"Electron beta Sigma: pol0:  %2.4f +- %4.3f",fsigma->GetParameter(0),0.0015);
+  drawLatex(0.15,0.75,buf,70,0.035,2);
+
+  c5->SaveAs("Tof_beta_mean_sigma_primary.pdf");
+
+  
+
+   TFile *File=new TFile("nSigmaE_calibration_primary.root","RECREATE");
+   
+   Mean->Write();
+   Sigma->Write();
+   Mean_Fit->Write();
+   Sigma_Fit->Write();
+
+
+   File->Close();
+  
+}
+TLatex* drawLatex(Double_t x, Double_t y, char* text, Int_t textFont, Double_t textSize, Int_t colorIndex)
+{
+  TLatex *latex = new TLatex(x,y,text); 
+  latex->SetNDC();  
+  latex->SetTextFont(textFont); 
+  latex->SetTextSize(textSize);
+  latex->SetTextColor(colorIndex);
+  latex->Draw("same");   
+  return latex; 
+}
+
+
+
+

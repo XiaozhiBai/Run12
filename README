@@ -1,29 +1,128 @@
-1 Read me file  for the run12 NPE aanalysis, 
-(1) starver SL12d (data) starver SL12d_embed (embedding)
-(2) work area 
+Run12 pp 200 GeV Npe Analyis 
+
+How to run the data analysis code
+ Work area (PDSF) 
 /global/u1/x/xiao00/work/run12 
+STAR library
+SL12d
 
-2. How to run the code 
 In /global/u1/x/xiao00/work/run12
-(1) starver SL12 
-(2) cons
-(3) ./run_Npe.test.csh 
 
-3. How to sumbit job 
-(1) cd submit/
-(2) /re_submit.sh
-(3) star-submit submit.xml (still some problem about the compiler on PDSF, already cottact Jeff)
+1 Code under StRoot
+(1) StPicoDstMaker/ PicoDst see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html 
+(2) StDmesonMaker/ Read Pico to save  analysis tree for the charm analyis, saved  the hadron and electron candidate. 
+(3) StNpeMaker/ Read DmesonTree make the Npe analysis 
+(4) macros/ macros to run the main program
+(5) StTriggerUtilities/ Trigger simulator
+(6) StEmbeddingAnaMaker   Read embedding save the embedding analyis tree
+(7) StEmbeddingAna Read embedding tree and make the embedding analysis  
 
-4 Code under StRoot
-(1) macros/ macros  Run the main program
-(2) StEmbedding/   Read embedding save the embedding analyis tree
-(3) StPicoDstMaker/ PicoDst see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html // by xin
-(4) StDmesonMaker/ Read Pico to save  anayiss tree for the charm analyis, save all the hadron and electron candidate. // by Mustafa
-(5) StTriggerUtilities/ Trigger simulater
-(6) StNpeMaker/ Read StDmesonMaker saved analyis tree, and fill all the histogram.      // By xiaozhi
-(7) StEmbeddingReader/ read embedding analyis tree calcualte efficiency. (this calss still not reviewed by xiaozhi)  
+2. How to run the code make test sampe  and sumbit the job   
+
+(1) Run test sample (PDSF)
+    cd /global/u1/x/xiao00/work/run12 
+    starver SL12d
+    ./cons.sh
+    ./run_Npe.test.csh
+
+(2) Sumbit jobs (PDSF)
+cd /global/project/projectdirs/star/pwg/starhf/Xiaozhi/Run12_pp/Data
+./clear.sh
+star-submit  submit.xml
+The jobs will take  2-3 hours, after jobs finishde( qstat -u xiao00 | wc) 
+cd /global/project/projectdirs/star/pwg/starhf/Xiaozhi/Run12_pp/Data/production
+hadd hist.root *.root (hist.root saved all the histogram)
+
+
+3. Read embedding and analysis embedding
+
+The request information can be found at https://drupal.star.bnl.gov/STAR/starsimrequest by request ID.
+EMC triggerd embedding  work area:  /global/project/projectdirs/star/pwg/starhf/Xiaozhi/Run12_pp/embedding/Embedding_HT
+
+(1)Single electron and positron (Request ID 20140404)
+   cd Single_Electron
+   starver SL12d_embed
+   ./cons.sh
+   star-submit submit.xml
+
+(2) Gamma conversion (ID 20140405)
+    cd Gamma
+    starver SL12d_embed
+    ./cons.sh
+    star-submit submit.xml
+
+(3)Pi0 Dalitz decay (Request ID 20143501)
+   cd Pi0_dalitz
+   starver SL12d_embed
+   ./cons.sh
+   star-submit submit.xml
+
+(4)Eta Dalitz decay (Request ID 20143501)
+   cd Eta_dalitz
+   starver SL12d_embed
+   ./cons.sh
+   star-submit submit.xml
+
+Minbias triggerd embedding  work area:  /global/project/projectdirs/star/pwg/starhf/Xiaozhi/Run12_pp/embedding/Embedding_MB
+(5)Single electron and positron
+  cd Single_Electron
+     starver SL12d_embed
+     ./cons.sh
+    star-submit submit.xml
+
+(6) Gamma conversion (ID )20144303
+  cd Gamma
+  starver SL12d_embed
+  ./cons.sh
+ star-submit submit.xml
+
+Minbias triggerd  Pi0 and Eta dalitz sample produced on RCF,  embedding work area: /star/u/xiao00/Run12/work/Npe/Run12_pp_data01/embedding/Embedding_MB
+(7)Pi0 Dalitz decay (ID 20144304) 
+   cd Pi0_dalitz
+   starver SL12d_embed
+   ./cons.sh
+   star-submit submit.xml
+
+(8)Eta Dalitz decay (ID 20144305)
+   cd Eta_dalitz
+   starver SL12d_embed
+   ./cons.sh
+   star-submit submit.xml
+
+4. Trigger efficiency extract from embedding
+cd /global/homes/x/xiao00/work/run12
+./cons.sh
+./run_Trigger_efficiency.sh
+Embedding/Trigger_efficiency.root Macros/NPE_HT/Trigger_efficiency/
+cd Macros/NPE_HT/Trigger_efficiency/
+root -l -l -b -q TrgEfficiency.C++
+
+4. Tracking efficiency extract from embedding
+cd /global/homes/x/xiao00/work/run12
+./cons.sh
+./run_Tracking_eff.sh 
+Embedding/Tracking_eff_HT.root  Macros/NPE_HT/Trigger_efficiency/
+cd Macros/NPE_HT/Trigger_efficiency/
+root -l -l -b -q Tracking_efficiency.C++
+
+5. Photonic electron reconstruction efficiency
+
+cd /global/homes/x/xiao00/work/run12	
+./cons.sh				
+./run_PHE_re.sh 			
+cp Embedding/Gamma_HT.root(Pi0_dalitz_HT.root,Eta_dalitz_HT.root)    Macros/NPE_HT/Photonic_RE_efficiency/
+cd Macros/NPE_HT/Photonic_RE_efficiency/		
+root -l -l -b -q Photonic_RE_relative_contribution.C++
+root -l -l -b -q Photonic_RE_efficiency.C++
+
+
+
+
+
+
 
 
 5 Slides for cofference
 
 https://www.star.bnl.gov/protected/heavy/xiao00/Lowpt_NPE_analysis.pdf
+
