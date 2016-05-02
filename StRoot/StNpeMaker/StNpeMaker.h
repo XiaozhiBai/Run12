@@ -170,6 +170,18 @@ class StNpeMaker
   TH2F *mh2Part_Ele_MassVspT_noTofMatchcut_like[nTrg];
   TH2F *mh2Part_Ele_MassVspT_TofMatchcut_unlike[nTrg];
   TH2F *mh2Part_Ele_MassVspT_TofMatchcut_like[nTrg];
+
+  // poe efficiency for MB
+  TH2F *mh2Prim_Ele_MassVspT_noPoecut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_noPoecut_like[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_Poecut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_MassVspT_Poecut_like[nTrg];
+
+  TH2F *mh2Prim_Ele_PoeVspT_noPoecut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_PoeVspT_noPoecut_like[nTrg];
+  TH2F *mh2Prim_Ele_PoeVspT_Poecut_unlike[nTrg];
+  TH2F *mh2Prim_Ele_PoeVspT_Poecut_like[nTrg];
+
   
   //electron e dedx calibratio and efficiency
   TH3F *mh3nSigmaE_pT_Mass_unlike[nTrg];

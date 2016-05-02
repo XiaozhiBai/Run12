@@ -447,10 +447,12 @@ void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTra
       if(eTrk->charge()!=pTrk->charge())
   	{
 	  mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+
 	}
       if(eTrk->charge()==pTrk->charge())
   	{
 	  mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+
 	}
     }
   if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk)&&pass_Tof_Match(pTrk))
@@ -458,13 +460,47 @@ void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTra
       if(eTrk->charge()!=pTrk->charge())
   	{
        mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+
 	}
       
       if(eTrk->charge()==pTrk->charge())
   	{
 	  mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
+
 	}
     }
+    //---------------------------poe Match efficiency-----------------------------------------------
+
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+	  mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+	  mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->e0());
+
+	}
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+	  mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]->Fill(eTrk->gMom().perp(),eTrk->e0());
+	}
+    }
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk)&&pass_cut_poe(eTrk))
+    {
+      if(eTrk->charge()!=pTrk->charge())
+  	{
+       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+              mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->e0());
+	}
+      
+      if(eTrk->charge()==pTrk->charge())
+  	{
+	  mh2Prim_Ele_MassVspT_Poecut_like[iTrg]->Fill(eTrk->gMom().perp(),pair->m());
+	  mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]->Fill(eTrk->gMom().perp(),eTrk->e0());
+	}
+    }
+
+  
   //---------------------------all the cuts applied -----------------------------------------------
   if(pass_cut_nsigmaE(eTrk)&&pass_cut_Tof(eTrk)&& pass_Tof_Match(eTrk)&&pass_cut_poe(eTrk))
     {
@@ -719,11 +755,22 @@ void StNpeMaker::bookObjects(){
        mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
        mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
        mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-      
+
+        // poe  efficiency
+       mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+
+       mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_unlikeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_likeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_unlikeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_likeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
 
 
+
       
-      // Tof match efficiency
+
       
       //inclusive electron 
       
@@ -824,7 +871,17 @@ void StNpeMaker::bookObjects(){
        mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Sumw2();
        mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Sumw2();
 
-      
+       // poe efficiency
+       mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]->Sumw2();
+       mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]->Sumw2();
+       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]->Sumw2();
+       mh2Prim_Ele_MassVspT_Poecut_like[iTrg]->Sumw2();
+
+       mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]->Sumw2();
+       mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]->Sumw2();
+       mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]->Sumw2();
+       mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]->Sumw2();
+
       //electron e dedx calibratio and efficiency
       mh3nSigmaE_pT_Mass_unlike[iTrg]->Sumw2();
       mh3nSigmaE_pT_Mass_like[iTrg]->Sumw2();
@@ -947,8 +1004,18 @@ void StNpeMaker::writeObjects(){
        mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]->Write();
        mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Write();
        mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Write();
+       
+       // poe efficiency
+       mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]->Write();
+       mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]->Write();
+       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]->Write();
+       mh2Prim_Ele_MassVspT_Poecut_like[iTrg]->Write();
 
-      
+       mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]->Write();
+       mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]->Write();
+       mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]->Write();
+       mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]->Write();
+
       // inclusive e
       mh2nSigmaElec[iTrg]->Write();
       mh2nSigmaElec_ps[iTrg]->Write();

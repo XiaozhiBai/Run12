@@ -155,7 +155,7 @@ cp ../Cross_Section/run12_Npe_HT.root .
 root -l Draw_run12_Npe.C++
 
 
-Selected  Slides for cofference
+Selected  Slides for meeting
 
 Non-photonic electron production in p+p collisions at √s=200 GeV.
 Xiaozhi Bai for STAR collaboration oral presentation to APS 2015 April Meeting, Baltimore, MD (2015/4)
