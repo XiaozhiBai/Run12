@@ -9,6 +9,9 @@
 Log*
 *.o
 .sl*
+*~
+*pcm
+*dat
 temp_gccflags.c
 .consign
 .sl64_gcc447

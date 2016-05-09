@@ -31,15 +31,34 @@ void Tracking_efficiency()
   TH1F * mh1Track_MC20= (TH1F *) inFile->Get("mNTrack_cut");
   TH1F * mh1Track_MC25= (TH1F *) inFile->Get("mNTrack_cut_25");
 
+  // mh1Track_MC20->Divide(mh1Track_MC);
+  // mh1Track_MC25->Divide(mh1Track_MC);
+
+  // mh1Track_MC20->SetLineColor(2);
+  // mh1Track_MC20->Draw();
+  //  mh1Track_MC25->Draw("");
+  
+
+  
+  //return;
   TH1F * mh1_Track=(TH1F *) mh1Track_MC->Rebin(NpT_bins_run12_HT,"mh1_Track",pt_run12_HT);
   TH1F * mh1_Track_20Cut=(TH1F *) mh1Track_MC20->Rebin(NpT_bins_run12_HT,"mh1_Track_20Cut",pt_run12_HT);
   TH1F * mh1_Track_25Cut=(TH1F *) mh1Track_MC25->Rebin(NpT_bins_run12_HT,"mh1_Track_25Cut",pt_run12_HT);
 
+  mh1_Track->Sumw2();
+  mh1_Track_20Cut->Sumw2();
+  mh1_Track_25Cut->Sumw2();
+  // mh1_Track_25Cut->Divide(mh1_Track);
+  // mh1_Track_25Cut->Draw();
+  
+  
+  
   TGraphAsymmErrors *Tracking_Ef=new TGraphAsymmErrors(mh1_Track_20Cut,mh1_Track,"N");
   TGraphAsymmErrors *Tracking_Ef_sys=new TGraphAsymmErrors(mh1_Track_25Cut,mh1_Track,"N");
  
   Tracking_Ef->Draw();
   Tracking_Ef_sys->Draw("same");
+
 
   for(Int_t i=0;i<NpT_bins_run12_HT;i++)
     {
@@ -65,7 +84,7 @@ void Draw_efficiency(TH1F * efficiency)
   gStyle->SetOptStat(0);  
   TCanvas *c2=new TCanvas("c2","",800,600);
   c2->cd();
-  TH2F * hh=new TH2F("hh","",10,2,10,10,0,1);
+  TH2F * hh=new TH2F("hh","",10,2,14,10,0,1);
   hh->GetXaxis()->SetTitle("P_{T} GeV/c");
   hh->GetYaxis()->SetTitle("Tracking efficiency");
   

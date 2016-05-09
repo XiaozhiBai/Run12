@@ -1,0 +1,18 @@
+
+Processing purity_MB_lowpT.C++...
+Info in <TMacOSXSystem::ACLiC>: creating shared library /Users/xiaozhi/NPE_work/Run12/NPE_MB_wide_bin/Purity/./purity_MB_lowpT_C.so
+In file included from /Users/xiaozhi/NPE_work/Run12/NPE_MB_wide_bin/Purity/purity_MB_lowpT_C_ACLiC_dict.cxx:41:
+/Users/xiaozhi/NPE_work/Run12/NPE_MB_wide_bin/Purity/./purity_MB_lowpT.C:401:62: warning: unused parameter 'E_mean_err' [-Wunused-parameter]
+Double_t Fit_purity(TH1F * const inclusive,Int_t ipt,Float_t E_mean_err,Float_t E_sigma_err,TF1 *total_3,TF1 * g1,TF1 *g2,TF1 *g3, TF1 *g4,Int_t Sigma_flag,Int_t Draw_flag)
+                                                             ^
+/Users/xiaozhi/NPE_work/Run12/NPE_MB_wide_bin/Purity/./purity_MB_lowpT.C:401:81: warning: unused parameter 'E_sigma_err' [-Wunused-parameter]
+Double_t Fit_purity(TH1F * const inclusive,Int_t ipt,Float_t E_mean_err,Float_t E_sigma_err,TF1 *total_3,TF1 * g1,TF1 *g2,TF1 *g3, TF1 *g4,Int_t Sigma_flag,Int_t Draw_flag)
+                                                                                ^
+/Users/xiaozhi/NPE_work/Run12/NPE_MB_wide_bin/Purity/./purity_MB_lowpT.C:655:61: warning: unused parameter 'textFont' [-Wunused-parameter]
+TLatex* drawLatex(Double_t x, Double_t y, char* text, Int_t textFont, Double_t textSize, Int_t colorIndex)
+                                                            ^
+3 warnings generated.
+  GetFile
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c2
+Info in <TCanvas::Print>: pdf file purity_MB.pdf has been created
+(int) 0

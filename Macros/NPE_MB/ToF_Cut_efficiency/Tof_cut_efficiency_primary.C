@@ -38,7 +38,7 @@ const int nTrg=1;
 char buf[1024];
 
 
-TFile *file=new TFile("../RootFile/Root_File_4_12/hist_4_12.root","READ");
+TFile *file=new TFile("../RootFile/Root_File_5_2/hist_5_2.root","READ");
 
 ofstream outdata("Tof_beta_mean_And_sigma.dat");
 void Tof_cut_efficiency_primary()
@@ -108,11 +108,18 @@ void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof
   TH1F *Sigma_Fit=new TH1F("Sigma_Fit","",NpT_bins_run12_MB,pt_run12_MB);
   
   
+  
   TCanvas *c2=new TCanvas("c2","",1200,1000);
   TCanvas *c3=new TCanvas("c3","",1200,1000);
-  
-  c2->Divide(3,2,0.001,0.001);
-  c3->Divide(3,2,0.001,0.001);
+
+  TCanvas *c4=new TCanvas("c4","",1200,1000);
+  TCanvas *c5=new TCanvas("c5","",1200,1000);
+
+  c2->Divide(3,3,0.001,0.001);
+  c3->Divide(3,3,0.001,0.001);
+
+  c4->Divide(3,3,0.001,0.001);
+  c5->Divide(3,3,0.001,0.001);
   
   int Npad=1;
   for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
@@ -122,20 +129,32 @@ void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof
        f1->SetParameter(2,0.01);
       
        f1->SetParLimits(1,-0.1,0.1);
-      
 
 
-      if(ipt<6)
+       if(ipt<9)
         {
           c2->cd(Npad++);
-          gPad->SetLogy(1);
+	  //         gPad->SetLogy(1);
         }
-      else 
+      else if(ipt<18)
         {
           c3->cd(Npad++);
-          gPad->SetLogy(1);
+	  //          gPad->SetLogy(1);
         }
-      if(Npad==7) Npad=1;
+
+      else if(ipt<27)
+        {
+          c4->cd(Npad++);
+	  //  gPad->SetLogy(1);
+        }
+
+      else if(ipt<36)
+        {
+          c5->cd(Npad++);
+	  //  gPad->SetLogy(1);
+        }
+
+      if(Npad==10) Npad=1;
 
       Tof_beta_unlike_like[ipt]->SetTitle(mh1_pT_Title[ipt]);
       Tof_beta_unlike_like[ipt]->GetXaxis()->SetTitle("1/#beta-1");
@@ -218,23 +237,26 @@ void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof
   c2->SaveAs("nsigmaE_c2_primary.pdf");
   c3->SaveAs("nsigmaE_c3_primary.pdf");
 
+  c4->SaveAs("nsigmaE_c4_primary.pdf");
+  c5->SaveAs("nsigmaE_c5_primary.pdf");
+
   
   //  return;
 
   gStyle->SetOptStat(00000);
   
-  TCanvas *c5=new TCanvas("c5","",1200,1000);
-  TH2F *h5_a=new TH2F("h5_a","",10,1,4,100,-0.05,0.05);
+  TCanvas *c55=new TCanvas("c55","",1200,1000);
+  TH2F *h5_a=new TH2F("h5_a","",10,0.2,4,100,-0.05,0.05);
   h5_a->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h5_a->GetYaxis()->SetTitle("#beta Mean");
     
   
-  TF1 *fmean=new TF1(TString("fmean"),"[0]",1.2,3);
-  TF1 *fmean_u=new TF1(TString("fmean_u"),"[0]",1.2,3);
-  TF1 *fmean_d=new TF1(TString("fmean_d"),"[0]",1.2,3);
-  TF1 *fsigma=new TF1(TString("fsigma"),"[0]",1.2,3);
-  TF1 *fsigma_u=new TF1(TString("fsigma_u"),"[0]",1.2,3);
-  TF1 *fsigma_d=new TF1(TString("fsigma_d"),"[0]",1.2,3);  
+  TF1 *fmean=new TF1(TString("fmean"),"[0]",0.2,3);
+  TF1 *fmean_u=new TF1(TString("fmean_u"),"[0]",0.2,3);
+  TF1 *fmean_d=new TF1(TString("fmean_d"),"[0]",0.2,3);
+  TF1 *fsigma=new TF1(TString("fsigma"),"[0]",0.2,3);
+  TF1 *fsigma_u=new TF1(TString("fsigma_u"),"[0]",0.2,3);
+  TF1 *fsigma_d=new TF1(TString("fsigma_d"),"[0]",0.2,3);  
   
   fmean_u->SetLineStyle(7);
   fmean_d->SetLineStyle(7);
@@ -247,13 +269,13 @@ void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof
   Sigma->Draw("same");
   
 
-  Mean->Fit(fmean,"R","same",1.2,3); 
-  Mean_u->Fit(fmean_u,"R0","same",1.2,3); 
-  Mean_d->Fit(fmean_d,"R0","same",1.2,3); 
+  Mean->Fit(fmean,"R","same",0.2,3); 
+  Mean_u->Fit(fmean_u,"R0","same",0.2,3); 
+  Mean_d->Fit(fmean_d,"R0","same",0.2,3); 
   
-  Sigma->Fit(fsigma,"R","same",1.2,3);
-  Sigma_u->Fit(fsigma_u,"R0","same",1.2,3);
-  Sigma_d->Fit(fsigma_d,"R0","same",1.2,3);
+  Sigma->Fit(fsigma,"R","same",0.2,3);
+  Sigma_u->Fit(fsigma_u,"R0","same",0.2,3);
+  Sigma_d->Fit(fsigma_d,"R0","same",0.2,3);
   
   fmean_u->SetParameter(0,fmean->GetParameter(0)+0.0015);
   fmean_d->SetParameter(0,fmean->GetParameter(0)-0.0015);
@@ -288,7 +310,7 @@ void Fit_electron_nsigma_Mean(TH1F *Tof_beta_unlike[NpT_bins_run12_MB],TH1F *Tof
   sprintf(buf,"Electron beta Sigma: pol0:  %2.4f +- %4.3f",fsigma->GetParameter(0),0.0015);
   drawLatex(0.15,0.75,buf,70,0.035,2);
 
-  c5->SaveAs("Tof_beta_mean_sigma_primary.pdf");
+  c55->SaveAs("Tof_beta_mean_sigma_primary.pdf");
 
   
 

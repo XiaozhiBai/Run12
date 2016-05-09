@@ -140,7 +140,7 @@ void nSigma_Electron_Cut_efficiency()
 	 
 	 heff->GetXaxis()->SetTitle("n#sigma_{e} cut efficiency");
 	 heff->GetYaxis()->SetTitle("Counts");
-	 heff->SetTitle(mh1_pT_Title[ipt]);
+	 heff->SetTitle(mh1_pT_Title_HT[ipt]);
 
 	 heff->Fit(Gaus,"R","",heff->GetMean()-5*heff->GetRMS(),heff->GetMean()+5*heff->GetRMS());
 	
@@ -165,7 +165,7 @@ void nSigma_Electron_Cut_efficiency()
     nsigmaE_HT->SetMarkerSize(1);
     nsigmaE_HT->SetMarkerColor(2);
     
-    TH2F *h2=new TH2F("h2","",100,2,10,100,0,1);
+    TH2F *h2=new TH2F("h2","",100,2,14,100,0,1);
     h2->GetXaxis()->SetTitle("p_{T} GeV/c");
     h2->GetYaxis()->SetTitle("n#sigma _{e} cut efficiency"); 
     

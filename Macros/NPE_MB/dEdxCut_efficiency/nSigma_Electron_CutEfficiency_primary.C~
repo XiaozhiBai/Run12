@@ -136,12 +136,12 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
       if(ipt<6)
         {
           c2->cd(Npad++);
-          gPad->SetLogy(0);
+          gPad->SetLogy(1);
         }
       else 
         {
           c3->cd(Npad++);
-          gPad->SetLogy(0);
+          gPad->SetLogy(1);
         }
       if(Npad==7) Npad=1;
 

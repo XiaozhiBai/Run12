@@ -74,7 +74,7 @@ void Tof_match_efficiency()
   // gStyle->SetEndErrorSize(4);
   
 
-     TFile *File=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+     TFile *File=new TFile("../RootFile/Root_File_5_2/hist_5_2.root","READ");
   
   for(Int_t ihist=0;ihist<mh2Nhist;ihist++)
     {
@@ -84,17 +84,17 @@ void Tof_match_efficiency()
       mh2hist_like_total[ihist]=(TH2F *) File->Get(mh2HistName_Photonic_like_total[ihist]);
       
       sprintf(buf,"unlike_passTrg%i",ihist);
-      mh1hist_pT_unlike_pass[ihist]=(TH1F *)mh2hist_unlike_pass[ihist]->ProjectionX(buf,1,20,"");
+      mh1hist_pT_unlike_pass[ihist]=(TH1F *)mh2hist_unlike_pass[ihist]->ProjectionX(buf,1,10,"");
       sprintf(buf,"like_passTrg%i",ihist);
-      mh1hist_pT_like_pass[ihist]=(TH1F *)mh2hist_like_pass[ihist]->ProjectionX(buf,1,20,"");
+      mh1hist_pT_like_pass[ihist]=(TH1F *)mh2hist_like_pass[ihist]->ProjectionX(buf,1,10,"");
       sprintf(buf,"unlike_like_passTrg%i",ihist);
       mh1hist_pT_unlike_like_pass[ihist]=(TH1F *)mh1hist_pT_unlike_pass[ihist]->Clone(buf);
       mh1hist_pT_unlike_like_pass[ihist]->Add(mh1hist_pT_like_pass[ihist],-1);
 
       sprintf(buf,"unlike_totalTrg%i",ihist);
-      mh1hist_pT_unlike_total[ihist]=(TH1F *)mh2hist_unlike_total[ihist]->ProjectionX(buf,1,20,"");
+      mh1hist_pT_unlike_total[ihist]=(TH1F *)mh2hist_unlike_total[ihist]->ProjectionX(buf,1,10,"");
       sprintf(buf,"like_totalTrg%i",ihist);
-      mh1hist_pT_like_total[ihist]=(TH1F *)mh2hist_like_total[ihist]->ProjectionX(buf,1,20,"");
+      mh1hist_pT_like_total[ihist]=(TH1F *)mh2hist_like_total[ihist]->ProjectionX(buf,1,10,"");
       sprintf(buf,"unlike_like_totalTrg%i",ihist);
       mh1hist_pT_unlike_like_total[ihist]=(TH1F *)mh1hist_pT_unlike_total[ihist]->Clone(buf);
       mh1hist_pT_unlike_like_total[ihist]->Add(mh1hist_pT_like_total[ihist],-1);
@@ -133,9 +133,9 @@ void Tof_match_efficiency()
   efficiency_tof_match->SetMarkerSize(1);
   efficiency_tof_match->SetMarkerColor(2);
   
-  TH2F *h2=new TH2F("h2","",100,1,4,100,0,1);
+  TH2F *h2=new TH2F("h2","",100,0.2,4,100,0,1);
   h2->GetXaxis()->SetTitle("P_{T} GeV/c");
-  h2->GetYaxis()->SetTitle("BEMC efficiency"); 
+  h2->GetYaxis()->SetTitle("Tof Match efficiency"); 
   
   gStyle->SetOptStat(0);     
   TCanvas *c2= new TCanvas("c2","",800,600);

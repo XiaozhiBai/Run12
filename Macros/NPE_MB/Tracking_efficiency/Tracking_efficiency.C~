@@ -14,26 +14,32 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
-#include "../mBinning_HT.h"
+#include "../mBinning_MB.h"
 using namespace std;
 
 void Draw_efficiency(TH1F *);
 void Tracking_efficiency()
 {
 
+TH3F::SetDefaultSumw2();  
+  TH2F::SetDefaultSumw2();  
+  TH1F::SetDefaultSumw2();  
+  
+  
   TH1F * mh1Track_noCut;
   TH1F * mh1Track_Cut20;
   TH1F * mh1Track_Cut25;
-  TH1F * Tracking_efficiency_HT=new TH1F("Tracking_efficiency_HT","",NpT_bins_run12_HT,pt_run12_HT);
+  TH1F * Tracking_efficiency_MB=new TH1F("Tracking_efficiency_MB","",NpT_bins_run12_MB,pt_run12_MB);
   
-  TFile * inFile= new TFile("Tracking_eff.root","READ");
+  TFile * inFile= new TFile("Tracking_eff_MB.root","READ");
   TH1F * mh1Track_MC= (TH1F *) inFile->Get("mNTrack_nocuts");
   TH1F * mh1Track_MC20= (TH1F *) inFile->Get("mNTrack_cut");
   TH1F * mh1Track_MC25= (TH1F *) inFile->Get("mNTrack_cut_25");
 
-  TH1F * mh1_Track=(TH1F *) mh1Track_MC->Rebin(NpT_bins_run12_HT,"mh1_Track",pt_run12_HT);
-  TH1F * mh1_Track_20Cut=(TH1F *) mh1Track_MC20->Rebin(NpT_bins_run12_HT,"mh1_Track_20Cut",pt_run12_HT);
-  TH1F * mh1_Track_25Cut=(TH1F *) mh1Track_MC25->Rebin(NpT_bins_run12_HT,"mh1_Track_25Cut",pt_run12_HT);
+  
+  TH1F * mh1_Track=(TH1F *) mh1Track_MC->Rebin(NpT_bins_run12_MB,"mh1_Track",pt_run12_MB);
+  TH1F * mh1_Track_20Cut=(TH1F *) mh1Track_MC20->Rebin(NpT_bins_run12_MB,"mh1_Track_20Cut",pt_run12_MB);
+  TH1F * mh1_Track_25Cut=(TH1F *) mh1Track_MC25->Rebin(NpT_bins_run12_MB,"mh1_Track_25Cut",pt_run12_MB);
 
   TGraphAsymmErrors *Tracking_Ef=new TGraphAsymmErrors(mh1_Track_20Cut,mh1_Track,"N");
   TGraphAsymmErrors *Tracking_Ef_sys=new TGraphAsymmErrors(mh1_Track_25Cut,mh1_Track,"N");
@@ -41,7 +47,8 @@ void Tracking_efficiency()
   Tracking_Ef->Draw();
   Tracking_Ef_sys->Draw("same");
 
-  for(Int_t i=0;i<NpT_bins_run12_HT;i++)
+  return;
+  for(Int_t i=0;i<NpT_bins_run12_MB;i++)
     {
       Double_t x_20=0,y_20=0,y_err_20=0;
       Double_t x_25=0,y_25=0,y_err_25=0;
@@ -55,17 +62,17 @@ void Tracking_efficiency()
       y_err_25=Tracking_Ef_sys->GetErrorY(i);
       
 
-      Tracking_efficiency_HT->SetBinContent(i+1,y_20);
-      Tracking_efficiency_HT->SetBinError(i+1,y_err_20+fabs(y_20-y_25));
+      Tracking_efficiency_MB->SetBinContent(i+1,y_20);
+      Tracking_efficiency_MB->SetBinError(i+1,y_err_20+fabs(y_20-y_25));
     }
-   Draw_efficiency(Tracking_efficiency_HT);  
+   Draw_efficiency(Tracking_efficiency_MB);  
 }
 void Draw_efficiency(TH1F * efficiency)
 {
   gStyle->SetOptStat(0);  
   TCanvas *c2=new TCanvas("c2","",800,600);
   c2->cd();
-  TH2F * hh=new TH2F("hh","",10,2,10,10,0,1);
+  TH2F * hh=new TH2F("hh","",10,0,5,10,0,1);
   hh->GetXaxis()->SetTitle("P_{T} GeV/c");
   hh->GetYaxis()->SetTitle("Tracking efficiency");
   
@@ -84,9 +91,9 @@ void Draw_efficiency(TH1F * efficiency)
   // legend->SetFillStyle(0);   
   // legend->Draw("same");
   
-  c2->SaveAs("Tracking_efficiency_HT.pdf");
+  c2->SaveAs("Tracking_efficiency_MB.pdf");
   
-  TFile *file=new TFile("Tracking_efficiency_HT.root","RECREATE");
+  TFile *file=new TFile("Tracking_efficiency_MB.root","RECREATE");
   efficiency->Write();
   file->Close();
 }

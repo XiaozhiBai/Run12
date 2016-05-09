@@ -384,6 +384,15 @@ void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTra
 	  mh3EMC_PartUnlike[iTrg]->Fill(pTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
 	  mh3EtaPhiUnlike[iTrg]->Fill(eTrk->gMom().pseudoRapidity(),eTrk->gMom().phi(),eTrk->gMom().perp());
 	  mh3EMC_ADCPartUnlike[iTrg]->Fill(pTrk->nSigmaElectron(),eTrk->trgTowDsmAdc(),pair->m());
+
+
+	  mh3poe0_pT_Partner_Mass_unlike[iTrg]->Fill(pTrk->gMom().mag()/pTrk->e0(),pTrk->gMom().perp(),pair->m());
+	  if(pass_cut_Trigger_electron(pTrk,iTrg))
+	    {
+	      mh3poe0_pT_Partner_Mass_trg_unlike[iTrg]->Fill(pTrk->gMom().mag()/pTrk->e0(),pTrk->gMom().perp(),pair->m());
+	    }
+
+
 	}
       if(eTrk->charge()==pTrk->charge()) 
 	{
@@ -402,6 +411,12 @@ void StNpeMaker::Fill_pair_hist_HT(Int_t iTrg,StElectronPair * pair, StDmesonTra
 	  mh3EMC_Partlike[iTrg]->Fill(pTrk->nSigmaElectron(),eTrk->gMom().perp(),pair->m());
 	  mh3EtaPhilike[iTrg]->Fill(eTrk->gMom().pseudoRapidity(),eTrk->gMom().phi(),eTrk->gMom().perp());
 	  mh3EMC_ADCPartlike[iTrg]->Fill(pTrk->nSigmaElectron(),eTrk->trgTowDsmAdc(),pair->m());
+
+	  mh3poe0_pT_Partner_Mass_like[iTrg]->Fill(pTrk->gMom().mag()/pTrk->e0(),pTrk->gMom().perp(),pair->m());
+	  if(pass_cut_Trigger_electron(pTrk,iTrg))
+	    {
+	      mh3poe0_pT_Partner_Mass_trg_like[iTrg]->Fill(pTrk->gMom().mag()/pTrk->e0(),pTrk->gMom().perp(),pair->m());
+	    }
 	}
       //    cout<<" pass !!!"<<endl;
 
@@ -442,7 +457,7 @@ void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTra
      	}
     }
   //---------------------------Tof Match efficiency-----------------------------------------------
-  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk))
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&-1.5<pTrk->nSigmaElectron())
     {
       if(eTrk->charge()!=pTrk->charge())
   	{
@@ -455,18 +470,16 @@ void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTra
 
 	}
     }
-  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&pass_Tof_Match(eTrk)&&pass_Tof_Match(pTrk))
+  if(pass_cut_nsigmaE(eTrk)&&pass_cut_poe(eTrk)&&pass_cut_Tof(eTrk)&&-1.5<pTrk->nSigmaElectron()&&pass_Tof_Match(pTrk))
     {
       if(eTrk->charge()!=pTrk->charge())
   	{
        mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
-
 	}
       
       if(eTrk->charge()==pTrk->charge())
   	{
 	  mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]->Fill(pTrk->gMom().perp(),pair->m());
-
 	}
     }
     //---------------------------poe Match efficiency-----------------------------------------------
@@ -515,12 +528,11 @@ void StNpeMaker::Fill_pair_hist_MB(Int_t iTrg,StElectronPair * pair, StDmesonTra
 	  mEta_ptUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->gMom().pseudoRapidity());
 	  mDedxUnlike[iTrg]->Fill(eTrk->gMom().perp(),eTrk->dEdx());
 	  mPoeUnlike[iTrg]->Fill(eTrk->gMom().mag()/eTrk->e0(),eTrk->gMom().perp());
-
+	  
 	  mh2InvMassUnlike_ps[iTrg]->Fill(pair->m(),eTrk->gMom().perp(),ps);
 	  mh2InvMassUnlike[iTrg]->Fill(pair->m(),eTrk->gMom().perp());
-	  
 
-	 
+	  
 	}
       if(eTrk->charge()==pTrk->charge())
 	{
@@ -681,91 +693,91 @@ void StNpeMaker::bookObjects(){
       mh2hVzVsVpdVz[iTrg] = new TH2F(Form("mh2hVzVsVpdVzTrg%i",iTrg), ";TPC Vz (cm);VPD Vz (cm)", 400, -40+1e-6, 40+1e-6, 400, -40+1e-6, 40+1e-6);
       
       // all the cuts appllied
-      mPhi_ptUnlike[iTrg]=new TH2F(Form("mPhi_ptUnlikeTrg%i",iTrg)," ",200,0,20,400,-4,4);
-      mEta_ptUnlike[iTrg]=new TH2F(Form("mEta_ptUnlikeTrg%i",iTrg)," ",200,0,20,300,-1.5,1.5);
-      mPhi_ptlike[iTrg]=new TH2F(Form("mPhi_ptlikeTrg%i",iTrg)," ",200,0,20,400,-4,4);
-      mEta_ptlike[iTrg]=new TH2F(Form("mEta_ptlikeTrg%i",iTrg)," ",200,0,20,300,-1.5,1.5);
-      mHitFit_ptUnlike[iTrg] =new TH2F(Form("mHitFit_ptUnlikeTrg%i",iTrg)," ",200,0,20,60,0,60);
-      mHitFit_ptlike[iTrg] =new TH2F(Form("mHitFit_ptlikeTrg%i",iTrg)," ",200,0,20,60,0,60);
-      mNSMDEta_ptUnlike[iTrg]=new TH2F(Form("mNSMDEta_ptUnlikeTrg%i",iTrg)," ",200,0,20,10,0,10);
-      mNSMDEta_ptlike[iTrg]=new TH2F(Form("mNSMDEta_ptlikeTrg%i",iTrg)," ",200,0,20,10,0,10);
-      mNSMDPhi_ptUnlike[iTrg]=new TH2F(Form("mNSMDPhi_ptUnlikeTrg%i",iTrg)," ",200,0,20,10,0,10);
-      mNSMDPhi_ptlike[iTrg]=new TH2F(Form("mNSMDPhi_ptlikeTrg%i",iTrg)," ",200,0,20,10,0,10);
-      mHitsDedxUnlike[iTrg]=new TH2F(Form("mHitsDedxUnlikeTrg%i",iTrg)," ",200,0,20,60,0,60);
-      mHitsDedxlike[iTrg]=new TH2F(Form("mHitsDedxlikeTrg%i",iTrg)," ",200,0,20,60,0,60);
-      mNTracklike[iTrg]=new TH1F(Form("mNTracklikeTrg%i",iTrg)," ",200,0,20);
-      mNTrackUnlike[iTrg]=new TH1F(Form("mNTrackUnlikeTrg%i",iTrg)," ",200,0,20);
-      mNTrack_cutUnlike[iTrg]=new TH1F(Form("mNTrack_cutUnlikeTrg%i",iTrg)," ",200,0,20);
-      mNTrack_cutlike[iTrg]=new TH1F(Form("mNTrack_cutlikeTrg%i",iTrg)," ",200,0,20);     
-      mNTrack_cut25Unlike[iTrg]=new TH1F(Form("mNTrack_cut25UnlikeTrg%i",iTrg)," ",200,0,20);
-      mNTrack_cut25like[iTrg]=new TH1F(Form("mNTrack_cut25likeTrg%i",iTrg)," ",200,0,20);
-      mNTrack_cut20Unlike[iTrg]=new TH1F(Form("mNTrack_cut20UnlikeTrg%i",iTrg)," ",200,0,20);
-      mNTrack_cut20like[iTrg]=new TH1F(Form("mNTrack_cut20likeTrg%i",iTrg)," ",200,0,20);
-      mFitPos_ptlike[iTrg]=new TH2F(Form("mFitPos_ptlikeTrg%i",iTrg)," ",200,0,20,100,0,1);
-      mFitPos_ptUnlike[iTrg]=new TH2F(Form("mFitPos_ptUnlikeTrg%i",iTrg)," ",200,0,20,100,0,1);
-      mgDcalike[iTrg]=new TH2F(Form("mgDcalikeTrg%i",iTrg),"",200,0,20,50,0,5);
-      mgDcaUnlike[iTrg]=new TH2F(Form("mgDcaUnlikeTrg%i",iTrg),"",200,0,20,50,0,5);
-      mNsigElike[iTrg]=new TH2F(Form("mNsigElikeTrg%i",iTrg),"",200,0,20,100,-5+1e-6,5+1e-6);
-      mNsigEUnlike[iTrg]=new TH2F(Form("mNsigEUnlikeTrg%i",iTrg),"",200,0,20,50,-5+1e-6,5+1e-6);
-      mDedxlike[iTrg]=new TH2F(Form("mDedxlikeTrg%i",iTrg),"",200,0,20,60,1,6);
-      mDedxUnlike[iTrg]=new TH2F(Form("mDedxUnlikeTrg%i",iTrg),"",200,0,20,60,1,6);
-      mPoeUnlike[iTrg] = new TH2F(Form("mPoeUnlikeTrg%i",iTrg),"",100,0,2.5,200,0,20.);
-      mPoelike[iTrg] = new TH2F(Form("mPoelikeTrg%i",iTrg),"",100,0,2.5,200,0,20.);
+      mPhi_ptUnlike[iTrg]=new TH2F(Form("mPhi_ptUnlikeTrg%i",iTrg)," ",400,0,20,400,-4,4);
+      mEta_ptUnlike[iTrg]=new TH2F(Form("mEta_ptUnlikeTrg%i",iTrg)," ",400,0,20,300,-1.5,1.5);
+      mPhi_ptlike[iTrg]=new TH2F(Form("mPhi_ptlikeTrg%i",iTrg)," ",400,0,20,400,-4,4);
+      mEta_ptlike[iTrg]=new TH2F(Form("mEta_ptlikeTrg%i",iTrg)," ",400,0,20,300,-1.5,1.5);
+      mHitFit_ptUnlike[iTrg] =new TH2F(Form("mHitFit_ptUnlikeTrg%i",iTrg)," ",400,0,20,60,0,60);
+      mHitFit_ptlike[iTrg] =new TH2F(Form("mHitFit_ptlikeTrg%i",iTrg)," ",400,0,20,60,0,60);
+      mNSMDEta_ptUnlike[iTrg]=new TH2F(Form("mNSMDEta_ptUnlikeTrg%i",iTrg)," ",400,0,20,10,0,10);
+      mNSMDEta_ptlike[iTrg]=new TH2F(Form("mNSMDEta_ptlikeTrg%i",iTrg)," ",400,0,20,10,0,10);
+      mNSMDPhi_ptUnlike[iTrg]=new TH2F(Form("mNSMDPhi_ptUnlikeTrg%i",iTrg)," ",400,0,20,10,0,10);
+      mNSMDPhi_ptlike[iTrg]=new TH2F(Form("mNSMDPhi_ptlikeTrg%i",iTrg)," ",400,0,20,10,0,10);
+      mHitsDedxUnlike[iTrg]=new TH2F(Form("mHitsDedxUnlikeTrg%i",iTrg)," ",400,0,20,60,0,60);
+      mHitsDedxlike[iTrg]=new TH2F(Form("mHitsDedxlikeTrg%i",iTrg)," ",400,0,20,60,0,60);
+      mNTracklike[iTrg]=new TH1F(Form("mNTracklikeTrg%i",iTrg)," ",400,0,20);
+      mNTrackUnlike[iTrg]=new TH1F(Form("mNTrackUnlikeTrg%i",iTrg)," ",400,0,20);
+      mNTrack_cutUnlike[iTrg]=new TH1F(Form("mNTrack_cutUnlikeTrg%i",iTrg)," ",400,0,20);
+      mNTrack_cutlike[iTrg]=new TH1F(Form("mNTrack_cutlikeTrg%i",iTrg)," ",400,0,20);     
+      mNTrack_cut25Unlike[iTrg]=new TH1F(Form("mNTrack_cut25UnlikeTrg%i",iTrg)," ",400,0,20);
+      mNTrack_cut25like[iTrg]=new TH1F(Form("mNTrack_cut25likeTrg%i",iTrg)," ",400,0,20);
+      mNTrack_cut20Unlike[iTrg]=new TH1F(Form("mNTrack_cut20UnlikeTrg%i",iTrg)," ",400,0,20);
+      mNTrack_cut20like[iTrg]=new TH1F(Form("mNTrack_cut20likeTrg%i",iTrg)," ",400,0,20);
+      mFitPos_ptlike[iTrg]=new TH2F(Form("mFitPos_ptlikeTrg%i",iTrg)," ",400,0,20,100,0,1);
+      mFitPos_ptUnlike[iTrg]=new TH2F(Form("mFitPos_ptUnlikeTrg%i",iTrg)," ",400,0,20,100,0,1);
+      mgDcalike[iTrg]=new TH2F(Form("mgDcalikeTrg%i",iTrg),"",400,0,20,50,0,5);
+      mgDcaUnlike[iTrg]=new TH2F(Form("mgDcaUnlikeTrg%i",iTrg),"",400,0,20,50,0,5);
+      mNsigElike[iTrg]=new TH2F(Form("mNsigElikeTrg%i",iTrg),"",400,0,20,100,-5+1e-6,5+1e-6);
+      mNsigEUnlike[iTrg]=new TH2F(Form("mNsigEUnlikeTrg%i",iTrg),"",400,0,20,50,-5+1e-6,5+1e-6);
+      mDedxlike[iTrg]=new TH2F(Form("mDedxlikeTrg%i",iTrg),"",400,0,20,60,1,6);
+      mDedxUnlike[iTrg]=new TH2F(Form("mDedxUnlikeTrg%i",iTrg),"",400,0,20,60,1,6);
+      mPoeUnlike[iTrg] = new TH2F(Form("mPoeUnlikeTrg%i",iTrg),"",100,0,2.5,400,0,20.);
+      mPoelike[iTrg] = new TH2F(Form("mPoelikeTrg%i",iTrg),"",100,0,2.5,400,0,20.);
 
 
-      mh2InvMassUnlike[iTrg]=new TH2F(Form("mh2InvMassUnlikeTrg%i",iTrg),"",40,0,0.4,200 ,0,20.);
-      mh2InvMasslike[iTrg]=new TH2F(Form("mh2InvMasslikeTrg%i",iTrg),"",40,0,0.4,200 ,0,20);
-      mh2InvMassUnlike_ps[iTrg]=new TH2F(Form("mh2InvMassUnlike_psTrg%i",iTrg),"",40,0,0.4,200 ,0,20.);
-      mh2InvMasslike_ps[iTrg]=new TH2F(Form("mh2InvMasslike_psTrg%i",iTrg),"",40,0,0.4,200 ,0,20);
+      mh2InvMassUnlike[iTrg]=new TH2F(Form("mh2InvMassUnlikeTrg%i",iTrg),"",40,0,0.4,400,0,20.);
+      mh2InvMasslike[iTrg]=new TH2F(Form("mh2InvMasslikeTrg%i",iTrg),"",40,0,0.4,400,0,20);
+      mh2InvMassUnlike_ps[iTrg]=new TH2F(Form("mh2InvMassUnlike_psTrg%i",iTrg),"",40,0,0.4,400,0,20.);
+      mh2InvMasslike_ps[iTrg]=new TH2F(Form("mh2InvMasslike_psTrg%i",iTrg),"",40,0,0.4,400,0,20);
 
-      mh3EMC_PartUnlike[iTrg]=new TH3F(Form("mh3EMC_PartUnlikeTrg%i",iTrg),"",140,-7,7,200 ,0,20.,40,0,0.4);
-      mh3EMC_Partlike[iTrg]=new TH3F(Form("mh3EMC_PartlikeTrg%i",iTrg),"",140,-7,7,200 ,0,20,40,0,0.4);
+      mh3EMC_PartUnlike[iTrg]=new TH3F(Form("mh3EMC_PartUnlikeTrg%i",iTrg),"",140,-7,7,400,0,20.,40,0,0.4);
+      mh3EMC_Partlike[iTrg]=new TH3F(Form("mh3EMC_PartlikeTrg%i",iTrg),"",140,-7,7,400,0,20,40,0,0.4);
       mh3EMC_ADCPartUnlike[iTrg]=new TH3F(Form("mh3EMC_ADCPartUnlikeTrg%i",iTrg),"",140,-7,7,40 ,0,40.,40,0,0.4);
       mh3EMC_ADCPartlike[iTrg]=new TH3F(Form("mh3EMC_ADCPartlikeTrg%i",iTrg),"",140,-7,7,40 ,0,40,40,0,0.4);     
-      mh3EtaPhiUnlike[iTrg]=new TH3F(Form("mh3EtaPhiUnlikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,200,0,20);
-      mh3EtaPhilike[iTrg]=new TH3F(Form("mh3EtaPhilikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,200,0,20);
+      mh3EtaPhiUnlike[iTrg]=new TH3F(Form("mh3EtaPhiUnlikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,400,0,20);
+      mh3EtaPhilike[iTrg]=new TH3F(Form("mh3EtaPhilikeTrg%i",iTrg),"",20 ,-1,1,80,-4,4,400,0,20);
 
       //      EMC efficiency
-      mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-      mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
-      mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
-      mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Prim_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+      mh2Prim_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
+      mh2Prim_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
+      mh2Prim_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
       
-      mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-      mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
-      mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
-      mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3); 
+      mh2Part_Ele_MassVspT_noBEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+      mh2Part_Ele_MassVspT_noBEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noBEMCcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
+      mh2Part_Ele_MassVspT_BEMCcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
+      mh2Part_Ele_MassVspT_BEMCcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_BEMCcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3); 
 
-      mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_passTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
-      mh3nSigmaEPart_pT_Mass_like_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_passTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
-      mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_totalTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
-      mh3nSigmaEPart_pT_Mass_like_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_totalTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_unlike_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_passTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_like_pass[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_passTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_unlike_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_unlike_totalTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
+      mh3nSigmaEPart_pT_Mass_like_total[iTrg]=new TH3F(Form("mh3nSigmaEPart_pT_Mass_like_totalTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
   
       // //electron e dedx calibratio and efficiency
-      mh3nSigmaE_pT_Mass_unlike[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_unlikeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
-      mh3nSigmaE_pT_Mass_like[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_likeTrg%i",iTrg),"",499,-10,10,200 ,0,20.,6,0,0.3);
+      mh3nSigmaE_pT_Mass_unlike[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_unlikeTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
+      mh3nSigmaE_pT_Mass_like[iTrg]=new TH3F(Form("mh3nSigmaE_pT_Mass_likeTrg%i",iTrg),"",499,-10,10,400,0,20.,6,0,0.3);
       // Tof cuts efficiency
-       mh3tof_beta_pT_Mass_primary_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_unlikeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
-       mh3tof_beta_pT_Mass_primary_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_likeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
-       mh3tof_beta_pT_Mass_partner_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_unlikeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
-       mh3tof_beta_pT_Mass_partner_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_likeTrg%i",iTrg),"",499,-0.1,0.1,200 ,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_primary_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_unlikeTrg%i",iTrg),"",499,-0.1,0.1,400,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_primary_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_primary_likeTrg%i",iTrg),"",499,-0.1,0.1,400,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_partner_unlike[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_unlikeTrg%i",iTrg),"",499,-0.1,0.1,400,0,20.,6,0,0.3);
+       mh3tof_beta_pT_Mass_partner_like[iTrg]=new TH3F(Form("mh3tof_beta_pT_Mass_partner_likeTrg%i",iTrg),"",499,-0.1,0.1,400,0,20.,6,0,0.3);
       // Tof match efficiency
 
-       mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_noTofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_noTofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_noTofMatchcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_TofMatchcut_unlike[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Part_Ele_MassVspT_TofMatchcut_like[iTrg]=new TH2F(Form("mh2Part_Ele_MassVspT_TofMatchcut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
 
         // poe  efficiency
-       mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_unlikeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
-       mh2Prim_Ele_MassVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_likeTrg%i",iTrg),"",200 ,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_noPoecut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_unlikeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
+       mh2Prim_Ele_MassVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_MassVspT_Poecut_likeTrg%i",iTrg),"",400,0,20.,60,0,0.3);
 
-       mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_unlikeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
-       mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_likeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
-       mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_unlikeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
-       mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_likeTrg%i",iTrg),"",200 ,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_noPoecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_unlikeTrg%i",iTrg),"",400,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_noPoecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_noPoecut_likeTrg%i",iTrg),"",400,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_Poecut_unlike[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_unlikeTrg%i",iTrg),"",400,0,20.,200,0,2);
+       mh2Prim_Ele_PoeVspT_Poecut_like[iTrg]=new TH2F(Form("mh2Prim_Ele_PoeVspT_Poecut_likeTrg%i",iTrg),"",400,0,20.,200,0,2);
 
 
 
@@ -774,17 +786,25 @@ void StNpeMaker::bookObjects(){
       
       //inclusive electron 
       
-      mh2nSigmaElec[iTrg] = new TH2F(Form("mh2nSigmaElecTrg%i",iTrg),"",399,-15,15,200 ,0,20.);
-      mh2nSigmaElec_ps[iTrg] = new TH2F(Form("mh2nSigmaElec_psTrg%i",iTrg),"",399,-15,15,200 ,0,20.);
-      mh1electronPt[iTrg]=new TH1F(Form("mh1electronPtTrg%i",iTrg),"",200,0,20.);
-      mh1electronPt_ps[iTrg]=new TH1F(Form("mh1electronPt_psTrg%i",iTrg),"",200,0,20.);
+      mh2nSigmaElec[iTrg] = new TH2F(Form("mh2nSigmaElecTrg%i",iTrg),"",399,-15,15,400,0,20.);
+      mh2nSigmaElec_ps[iTrg] = new TH2F(Form("mh2nSigmaElec_psTrg%i",iTrg),"",399,-15,15,400,0,20.);
+      mh1electronPt[iTrg]=new TH1F(Form("mh1electronPtTrg%i",iTrg),"",400,0,20.);
+      mh1electronPt_ps[iTrg]=new TH1F(Form("mh1electronPt_psTrg%i",iTrg),"",400,0,20.);
 
-      mh2Pion_nSigmaElec[iTrg] =new TH2F(Form("mh2Pion_nSigmaElecTrg%i",iTrg),"",200,0,20, 699,-35,35);
-      mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
-      mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",200,0,20,699,-35,35);
+      mh2Pion_nSigmaElec[iTrg] =new TH2F(Form("mh2Pion_nSigmaElecTrg%i",iTrg),"",400,0,20, 699,-35,35);
+      mh2Kaon_nSigmaElec[iTrg] =new TH2F(Form("mh2Kaon_nSigmaElecTrg%i",iTrg),"",400,0,20,699,-35,35);
+      mh2Proton_nSigmaElec[iTrg] =new TH2F(Form("mh2Proton_nSigmaElecTrg%i",iTrg),"",400,0,20,699,-35,35);
       mh2nSigmaElec_pT[iTrg]=new TH2F(Form("mh2nSigmaElec_pTTrg%i",iTrg),"",400,0,20,1399,-35,35);
 
 
+
+      mh3poe0_pT_Partner_Mass_trg_unlike[iTrg]=new TH3F(Form("mh3poe0_pT_Partner_Mass_trg_unlikeTrg%i",iTrg),"",400,0,4,400,0,20.,6,0,0.3);
+      mh3poe0_pT_Partner_Mass_trg_like[iTrg]=new TH3F(Form("mh3poe0_pT_Partner_Mass_trg_likeTrg%i",iTrg),"",400,0,4,400,0,20.,6,0,0.3);
+
+      mh3poe0_pT_Partner_Mass_unlike[iTrg]=new TH3F(Form("mh3poe0_pT_Partner_Mass_unlikeTrg%i",iTrg),"",400,0,4,400,0,20.,6,0,0.3);
+      mh3poe0_pT_Partner_Mass_like[iTrg]=new TH3F(Form("mh3poe0_pT_Partner_Mass_likeTrg%i",iTrg),"",400,0,4,400,0,20.,6,0,0.3);
+
+      
       
       mh1MB_Nevents[iTrg]->Sumw2();
       mh1HT_Nevents[iTrg]->Sumw2();
@@ -897,17 +917,27 @@ void StNpeMaker::bookObjects(){
       mh2Kaon_nSigmaElec[iTrg]->Sumw2();
       mh2Proton_nSigmaElec[iTrg]->Sumw2(); 
       mh2nSigmaElec_pT[iTrg]->Sumw2();
+
+      //-----------------------------------------siwei
+      mh3poe0_pT_Partner_Mass_trg_unlike[iTrg]->Sumw2();
+      mh3poe0_pT_Partner_Mass_trg_like[iTrg]->Sumw2();
+
+      mh3poe0_pT_Partner_Mass_unlike[iTrg]->Sumw2();
+      mh3poe0_pT_Partner_Mass_like[iTrg]->Sumw2();
+
+      //----------------------------------
+
+
     }
   mh2_InvMass=new TH2F("mh2_InvMass","",320,0,4,560,-0.2,1.2);
-  mh2_Pion_nSigmaElec=new TH2F("mh2_Pion_nSigmaElec","",699,-35,35,200,0,20.);
-  mh2_Kaon_nSigmaElec=new TH2F("mh2_Kaon_nSigmaElec","",699,-35,35,200,0,20.);
-  mh2_Proton_nSigmaElec=new TH2F("mh2_Proton_nSigmaElec","",699,-35,35,200,0,20.);
+  mh2_Pion_nSigmaElec=new TH2F("mh2_Pion_nSigmaElec","",699,-35,35,400,0,20.);
+  mh2_Kaon_nSigmaElec=new TH2F("mh2_Kaon_nSigmaElec","",699,-35,35,400,0,20.);
+  mh2_Proton_nSigmaElec=new TH2F("mh2_Proton_nSigmaElec","",699,-35,35,400,0,20.);
 
   mh2_InvMass->Sumw2();
   mh2_Pion_nSigmaElec->Sumw2();
   mh2_Kaon_nSigmaElec->Sumw2();
   mh2_Proton_nSigmaElec->Sumw2();
-  
   
 }
 void StNpeMaker::writeObjects(){
@@ -915,6 +945,7 @@ void StNpeMaker::writeObjects(){
   mOutputFile->cd();
   for(Int_t iTrg=0;iTrg<nTrg;iTrg++)  
     {
+      
       mh1MB_Nevents[iTrg]->Write();
       mh1HT_Nevents[iTrg]->Write();
       mh1MB_Nevents_ps[iTrg]->Write();
@@ -1026,6 +1057,15 @@ void StNpeMaker::writeObjects(){
       mh2Kaon_nSigmaElec[iTrg]->Write();
       mh2Proton_nSigmaElec[iTrg]->Write(); 
       mh2nSigmaElec_pT[iTrg]->Write();
+
+      /*
+      mh3poe0_pT_Partner_Mass_trg_unlike[iTrg]->Write();
+      mh3poe0_pT_Partner_Mass_trg_like[iTrg]->Write();
+
+      mh3poe0_pT_Partner_Mass_unlike[iTrg]->Write();
+      mh3poe0_pT_Partner_Mass_like[iTrg]->Write();
+      */
+
     }
   mh2_InvMass->Write();
   mh2_Pion_nSigmaElec->Write();

@@ -165,7 +165,7 @@ void Tof_Beta_Cut_efficiency()
     Tof_beta_cut_MB->SetMarkerSize(1);
     Tof_beta_cut_MB->SetMarkerColor(2);
     
-    TH2F *h2=new TH2F("h2","",100,1,4,100,0,1.1);
+    TH2F *h2=new TH2F("h2","",100,0.2,4,100,0,1.1);
     h2->GetXaxis()->SetTitle("p_{T} GeV/c");
     h2->GetYaxis()->SetTitle("beta cut efficiency"); 
     

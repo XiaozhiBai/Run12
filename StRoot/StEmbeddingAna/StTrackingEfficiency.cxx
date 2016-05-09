@@ -19,7 +19,7 @@
 using namespace std;
 
 ClassImp(StTrackingEfficiency)
-  
+bool bEMCtrigger=true; 
 StTrackingEfficiency::StTrackingEfficiency(const char* outName)
 {
   
@@ -44,6 +44,21 @@ void StTrackingEfficiency::bookHistogram()
   mNTrack_nocuts->Sumw2();
   mNTrack_cut->Sumw2();
   mNTrack_cut_25->Sumw2();
+
+  // for BEMC efficiency sys
+  mNBEMC_nocuts=new TH1F("mNBEMC_nocuts","mNBEMC_nocuts",1000,0,20);
+  mNBEMC_cut=new TH1F("mNBEMC_cut","mNBEMC_cut",1000,0,20);
+
+
+  mNBEMC_nocuts->Sumw2();
+  mNBEMC_cut->Sumw2();
+
+
+
+
+  
+  
+
 }
 void StTrackingEfficiency::read(TString fileName)
 {
@@ -65,22 +80,30 @@ void StTrackingEfficiency::read(TString fileName)
     }
   for(Int_t iTrk=0;iTrk<tracksMC->GetEntries();iTrk++)
     {
-      if(isHotTower(tracksMC)) continue;
+         if(isHotTower(tracksMC)&&bEMCtrigger) continue;
       tracksMC->GetEntry(iTrk);
   
       Double_t weight =Weight(tracksMC->pt,tracksMC->geantId);
       
-      if(abs(tracksMC->eta)<0.7 )
+      if(abs(tracksMC->eta)<0.7&&(tracksMC->geantId==2||tracksMC->geantId==3))
 	{
 	  mNTrack_nocuts->Fill(tracksMC->pt,weight);
 	}
-      if(tracksMC->dca<1.5 && tracksMC->nfit>20 && tracksMC->nDedxPts>15 && tracksMC->nfit/(Float_t)tracksMC->nmax > 0.52 && sqrt(tracksMC->stpcx*tracksMC->stpcx+tracksMC->stpcy*tracksMC->stpcy)<73 && 0<tracksMC->rpt && abs(tracksMC->eta)<0.7 )
+      if(tracksMC->dca<1.5 && tracksMC->nfit>20 && tracksMC->nDedxPts>15 && tracksMC->nfit/(Float_t)tracksMC->nmax > 0.52 && sqrt(tracksMC->stpcx*tracksMC->stpcx+tracksMC->stpcy*tracksMC->stpcy)<73 && 0<tracksMC->rpt && abs(tracksMC->eta)<0.7&&(tracksMC->geantId==2||tracksMC->geantId==3))
 	{
 	  mNTrack_cut->Fill(tracksMC->pt,weight);
 	  if(tracksMC->nfit>25)
 	    {	
 	      mNTrack_cut_25->Fill(tracksMC->pt,weight);
 	    }
+
+	  if(bEMCtrigger) // for BEMC efficiency sys
+	    {
+	      mNBEMC_nocuts->Fill(tracksMC->pt,weight);
+	      if(tracksMC->p/tracksMC->btowE0<1.5&&0.3<tracksMC->p/tracksMC->btowE0&&fabs(tracksMC->bemcDistZ)<3&&fabs(tracksMC->bemcDistPhi)<0.015&&tracksMC->bsmdNEta>1&&tracksMC->bsmdNPhi>1)
+		mNBEMC_cut->Fill(tracksMC->pt,weight);
+	    }
+	  
 	}
     }
 }
@@ -92,6 +115,11 @@ void StTrackingEfficiency::WriteHistogram()
   mNTrack_nocuts->Write();
   mNTrack_cut->Write();
   mNTrack_cut_25->Write(); 
+
+  mNBEMC_nocuts->Write();
+  mNBEMC_cut->Write();
+
+
 }
 bool StTrackingEfficiency::isHotTower(StSingle_Electron_tracks * trk)
 {
@@ -107,6 +135,7 @@ bool StTrackingEfficiency::isHotTower(StSingle_Electron_tracks * trk)
 }
 Double_t StTrackingEfficiency::Weight(Float_t pt,Float_t geantID)
 {
+
   Double_t weight=0;
   if(abs(geantID)==2||abs(geantID)==3)
     weight=gFONLLc->Eval(pt);

@@ -47,7 +47,7 @@ void setpad(TPad *,float , float , float , float );
 
 //TH1F * Correc=new TH1F("Correc","",Nbins_HT,Pt_bin_HT);
 
-TFile *infile_data =new TFile("Input/hist_4_13.root","read");
+TFile *infile_data =new TFile("Input/hist_5_2.root","read");
 TFile *infile_BEMC =new TFile("Input/BEMC_efficiency.root","read");
 TFile *infile_dEdx_cut =new TFile("Input/nSigma_Cut_efficiency.root","read");
 TFile *infile_Trigger =new TFile("Input/TrigEfficiency_HT.root","read");
@@ -85,11 +85,11 @@ void NPE_Cross_section()
   gStyle->SetPadBottomMargin(0.13);
   gStyle->SetPadLeftMargin(0.13); 
 
-  Double_t  HT0_NmbEvents=1.95584425792000000e+11;// mh1MB_Nevents_psTrg0->GetBinContent(2);
-  Double_t  HT2_NmbEvents=1.99543894176000000e+11;// mh1MB_Nevents_psTrg1->GetBinContent(2);
+  //  Double_t  HT0_NmbEvents=1.95584425792000000e+11;// mh1MB_Nevents_psTrg0->GetBinContent(2);
+  // Double_t  HT2_NmbEvents=1.99543894176000000e+11;// mh1MB_Nevents_psTrg1->GetBinContent(2);
 
-  // Double_t  HT0_NmbEvents= mh1MB_Nevents_psTrg0->GetBinContent(2);
-  // Double_t  HT2_NmbEvents= mh1MB_Nevents_psTrg1->GetBinContent(2);
+  Double_t  HT0_NmbEvents= mh1MB_Nevents_psTrg0->GetBinContent(2);
+  Double_t  HT2_NmbEvents= mh1MB_Nevents_psTrg1->GetBinContent(2);
 
 
   TH1F *Inclusive[nTrg];
@@ -123,7 +123,8 @@ void NPE_Cross_section()
 
   TString Inclusive_name[nTrg]={"mh1electronPtTrg0","mh1electronPtTrg1"};
   TString Inclusive_name_ps[nTrg]={"mh1electronPt_psTrg0","mh1electronPt_psTrg1"};
-  
+
+
 
   for(Int_t iTrg=0;iTrg<nTrg;iTrg++)
     {
@@ -164,8 +165,10 @@ void NPE_Cross_section()
     }
   
 
-  Draw_Efficiency();
   
+  Draw_Efficiency();
+
+
   Draw_Pt_spectra(Inclusive,Photonic_unlike_pt,Photonic_like_pt,Photonic_unlike_like_pt,Inclusive_ps,Photonic_unlike_pt_ps,Photonic_like_pt_ps,Photonic_unlike_like_pt_ps);
   
   TH1F *HT0_inclusive=(TH1F *) Inclusive_ps[0]->Rebin(NpT_bins_run12_HT,"HT0_inclusive",pt_run12_HT);
@@ -183,14 +186,18 @@ void NPE_Cross_section()
    Raw_NPE_spectra_sts(HT0_inclusive,HT2_inclusive,HT0_phe,HT2_phe,HT0_Raw_NPE_sts,HT2_Raw_NPE_sts);
    Raw_NPE_spectra_sys(HT0_inclusive,HT2_inclusive,HT0_phe,HT2_phe,HT0_Raw_NPE_sys,HT2_Raw_NPE_sys);
 
+   
    TH1F *HT0_NPE_sts;
    TH1F *HT0_NPE_sys;
    TH1F *HT2_NPE_sts;
    TH1F *HT2_NPE_sys;
+
    
    // Get  NPE yeild corrected by the efficiency 
    Efficiency_Correction_sts(HT0_Raw_NPE_sts,HT2_Raw_NPE_sts,HT0_NPE_sts,HT2_NPE_sts);
    Efficiency_Correction_sys(HT0_Raw_NPE_sys,HT2_Raw_NPE_sys,HT0_NPE_sys,HT2_NPE_sys);
+   
+
    
   TH1F *HT0_NPE_spectra_sts;
   TH1F *HT0_NPE_spectra_sys;
@@ -263,7 +270,7 @@ void Draw_Cross_Section(TH1F *HT0_NPE_sts,TH1F *HT0_NPE_sys,TH1F *HT2_NPE_sts,TH
   TCanvas *c6=new TCanvas("c6","",800,600);
   gPad->SetLogy();
 
-  TH2F *h6=new TH2F("h6","",100,2,10,100,1e-13,1e-2);
+  TH2F *h6=new TH2F("h6","",100,2.5,13,100,1e-13,1e-2);
   h6->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h6->GetYaxis()->SetTitle("Ed^{3}#sigma/dp^{3}(mb Gev^{-2}c^{3})");
 
@@ -274,12 +281,12 @@ void Draw_Cross_Section(TH1F *HT0_NPE_sts,TH1F *HT0_NPE_sys,TH1F *HT2_NPE_sts,TH
   gFONLLu->Draw("same");
   gFONLLl->Draw("same");
 
-  TF1* f1 = new TF1("f1","[0]/(pow(x,[1])+[2])",2,10);
+  TF1* f1 = new TF1("f1","[0]/(pow(x,[1])+[2])",2.5,13);
   f1->SetParameter(0,10);
   f1->SetParameter(1,8);
   f1->SetParameter(2,0.7); 
-  HT_NPE_sts->Fit("f1","R","same" ,2,10);
-  HT_NPE_sts->Fit("f1","R","same" ,2,10);
+  HT_NPE_sts->Fit("f1","R","same" ,2.5,13);
+  HT_NPE_sts->Fit("f1","R","same" ,2.5,13);
 
  
   const int nbins = NpT_bins_run12_HT+1;
@@ -287,7 +294,7 @@ void Draw_Cross_Section(TH1F *HT0_NPE_sts,TH1F *HT0_NPE_sys,TH1F *HT2_NPE_sts,TH
 
 
   
-  TH1D* hCorrection = get_bin_shift((unsigned long int)1e9,f1,nbins,pt_run12_HT);
+    TH1D* hCorrection = get_bin_shift((unsigned long int)1e9,f1,nbins,pt_run12_HT);
   HT_NPE_sts->Divide(hCorrection);
   HT_NPE_sys->Divide(hCorrection);
 
@@ -326,7 +333,7 @@ void Draw_Cross_Section(TH1F *HT0_NPE_sts,TH1F *HT0_NPE_sys,TH1F *HT2_NPE_sts,TH
   
   TCanvas *c7=new TCanvas("c7","",800,600);
   //  gPad->SetLogy();
-  TH2F *h7=new TH2F("h7","",100,2,10,100,0,3);
+  TH2F *h7=new TH2F("h7","",100,2.5,13,100,0,3);
   h7->Draw();
   h7->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h7->GetYaxis()->SetTitle("Data/FONLL");
@@ -711,7 +718,7 @@ void Draw_NPE_PHE_ratio(TH1F *HT0_inclusive,TH1F *HT2_inclusive,TH1F *HT0_phe,TH
   
     
   TCanvas *c5=new TCanvas("c5","",1000,800);
-  TH2F *h5=new TH2F("h5","h5",100,2,10,100,0,2);
+  TH2F *h5=new TH2F("h5","h5",100,2,14,100,0,2);
   h5->Draw();
   
   TGraphErrors  *gr_HT0_S_B_sts= new TGraphErrors(HT0_S_B_sts);
@@ -798,7 +805,7 @@ void Draw_Pt_spectra(TH1F * Inclusive[nTrg],TH1F * Photonic_unlike_pt[nTrg],TH1F
   legend->SetFillStyle(0);   
   TCanvas *c4=new TCanvas("c4","",1200,1000);
   gPad->SetLogy();
-  TH2F *h4=new TH2F("h4","",100,2,10,100,1,3e4);
+  TH2F *h4=new TH2F("h4","",100,2,14,100,1,3e4);
   h4->Draw();
   h4->GetXaxis()->SetTitle("p_{T} GeV/c");
   h4->GetYaxis()->SetTitle("Counts");
@@ -811,7 +818,7 @@ void Draw_Pt_spectra(TH1F * Inclusive[nTrg],TH1F * Photonic_unlike_pt[nTrg],TH1F
 
   TCanvas *c3=new TCanvas("c2","",1200,1000);
   gPad->SetLogy();
-  TH2F *h3=new TH2F("h3","",100,2,10,100,1,3e6);
+  TH2F *h3=new TH2F("h3","",100,2,14,100,1,3e6);
   h3->Draw();
   h3->GetXaxis()->SetTitle("p_{T} GeV/c");
   h3->GetYaxis()->SetTitle("Counts");
@@ -862,7 +869,7 @@ void Draw_Efficiency()
   TCanvas *c2=new TCanvas("c2","",1200,800);
   c2->cd();
 
-  TH2F *h2=new TH2F("h2","",100,2,10,100,-0.1,1.8);
+  TH2F *h2=new TH2F("h2","",100,2,14,100,-0.1,1.8);
   h2->Draw();
   h2->GetYaxis()->SetTitle("efficiency");
   h2->GetXaxis()->SetTitle("p_{T} (Gev/c)");

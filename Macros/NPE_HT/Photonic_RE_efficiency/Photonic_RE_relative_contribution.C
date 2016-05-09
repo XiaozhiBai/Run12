@@ -133,7 +133,7 @@ void Draw_contribution(TH1F * mh1_Gamma,TH1F *mh1_pi0,TH1F * mh1_Eta)
   TCanvas *c2 = new TCanvas("c2","",0,0,800,600);
   c2->cd(); 
 
-  TH2F * hh=new TH2F("hh","",100,2,10,100,0,1);
+  TH2F * hh=new TH2F("hh","",100,2,14,100,0,1);
   
   hh->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   hh->GetYaxis()->SetTitle("Relative Contribution");

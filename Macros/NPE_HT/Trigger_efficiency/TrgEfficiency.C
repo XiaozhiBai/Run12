@@ -68,7 +68,7 @@ void TrgEfficiency()
    TCanvas *c2=new TCanvas("c2","",1200,1000);
 
    gPad->SetLogy();  
-   TH2F * h2=new TH2F("h2","",10,2,10,10,1e-4,10);
+   TH2F * h2=new TH2F("h2","",10,2,14,10,1e-4,10);
    h2->GetXaxis()->SetTitle("P_{T} GeV/c");
    h2->GetYaxis()->SetTitle("Trigger efficiency");
    h2->Draw();

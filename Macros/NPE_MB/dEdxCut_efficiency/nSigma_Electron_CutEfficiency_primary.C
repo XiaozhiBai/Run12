@@ -36,7 +36,7 @@ const int nTrg=1;
 
 char buf[1024];
 
-TFile *file=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+TFile *file=new TFile("../RootFile/Root_File_5_1/hist_5_1.root","READ");
 
 TH2F *nsigmaE_pi[nTrg];
 TH2F *nsigmaE_proton[nTrg];
@@ -125,25 +125,44 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
   
   TCanvas *c2=new TCanvas("c2","",1200,1000);
   TCanvas *c3=new TCanvas("c3","",1200,1000);
-  
-  c2->Divide(3,2,0.001,0.001);
-  c3->Divide(3,2,0.001,0.001);
-  
+
+  TCanvas *c4=new TCanvas("c4","",1200,1000);
+  TCanvas *c5=new TCanvas("c5","",1200,1000);
+
+  c2->Divide(3,3,0.001,0.001);
+  c3->Divide(3,3,0.001,0.001);
+
+  c4->Divide(3,3,0.001,0.001);
+  c5->Divide(3,3,0.001,0.001);
+
   int Npad=1;
   for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
     {
       TF1 *f1 = new TF1(TString("f1"),"gaus",-5,5);      
-      if(ipt<6)
+      if(ipt<9)
         {
           c2->cd(Npad++);
           gPad->SetLogy(1);
         }
-      else 
+      else if(ipt<18)
         {
           c3->cd(Npad++);
           gPad->SetLogy(1);
         }
-      if(Npad==7) Npad=1;
+
+      else if(ipt<27)
+        {
+          c4->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+
+      else if(ipt<36)
+        {
+          c5->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+
+      if(Npad==10) Npad=1;
 
       mh1NisgmaE_unlike_like[ipt]->SetTitle(mh1_pT_Title[ipt]);
       mh1NisgmaE_unlike_like[ipt]->GetXaxis()->SetTitle("nSigmaE");
@@ -190,6 +209,9 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
 
   c2->SaveAs("nsigmaE_c2_partner.pdf");
   c3->SaveAs("nsigmaE_c3_partner.pdf");
+
+  c4->SaveAs("nsigmaE_c4_partner.pdf");
+  c5->SaveAs("nsigmaE_c5_partner.pdf");
 
  
   

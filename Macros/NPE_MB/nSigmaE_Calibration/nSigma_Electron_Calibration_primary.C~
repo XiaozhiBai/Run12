@@ -37,7 +37,7 @@ const int nTrg=1;
 char buf[1024];
 
 
-TFile *file=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+TFile *file=new TFile("../RootFile/Root_File_5_1/hist_5_1.root","READ");
 
 TH2F *nsigmaE_pi[nTrg];
 TH2F *nsigmaE_proton[nTrg];
@@ -142,32 +142,55 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
   
   TCanvas *c2=new TCanvas("c2","",1200,1000);
   TCanvas *c3=new TCanvas("c3","",1200,1000);
+  TCanvas *c4=new TCanvas("c4","",1200,1000);
+  TCanvas *c5=new TCanvas("c5","",1200,1000);
+
+  // TCanvas *c22=new TCanvas("c22","",1200,1000);
+  // TCanvas *c33=new TCanvas("c33","",1200,1000);
+  // TCanvas *c33=new TCanvas("c33","",1200,1000);
+
   
-  c2->Divide(3,2,0.001,0.001);
-  c3->Divide(3,2,0.001,0.001);
   
+  c2->Divide(3,3,0.001,0.001);
+  c3->Divide(3,3,0.001,0.001);
+
+  c4->Divide(3,3,0.001,0.001);
+  c5->Divide(3,3,0.001,0.001);
+
   int Npad=1;
   for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
     {
       TF1 *f1 = new TF1(TString("f1"),"gaus",-5,5);      
-      if(ipt<6)
+      if(ipt<9)
         {
           c2->cd(Npad++);
           gPad->SetLogy(1);
         }
-      else 
+      else if(ipt<18) 
         {
           c3->cd(Npad++);
           gPad->SetLogy(1);
         }
-      if(Npad==7) Npad=1;
+      else if(ipt<27)
+        {
+          c4->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+       else if(ipt<36) 
+        {
+          c5->cd(Npad++);
+          gPad->SetLogy(1);
+        }
+
+
+      if(Npad==10) Npad=1;
 
       mh1NisgmaE_unlike_like[ipt]->SetTitle(mh1_pT_Title[ipt]);
       mh1NisgmaE_unlike_like[ipt]->GetXaxis()->SetTitle("nSigmaE");
       mh1NisgmaE_unlike_like[ipt]->GetYaxis()->SetTitle("Counts");
 
       mh1NisgmaE_unlike_like[ipt]->GetYaxis()->SetRangeUser(1,1.2*mh1NisgmaE_unlike[ipt]->GetMaximum());
-      mh1NisgmaE_unlike_like[ipt]->GetXaxis()->SetRangeUser(-3,3);      
+      mh1NisgmaE_unlike_like[ipt]->GetXaxis()->SetRangeUser(-5,5);      
 
 
       mh1NisgmaE_unlike[ipt]->SetLineColor(1);
@@ -226,22 +249,25 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
   c2->SaveAs("nsigmaE_c2_primary.pdf");
   c3->SaveAs("nsigmaE_c3_primary.pdf");
 
-  //  return;
+  c4->SaveAs("nsigmaE_c4_primary.pdf");
+  c5->SaveAs("nsigmaE_c5_primary.pdf");
+
+    
 
   gStyle->SetOptStat(00000);
   
-  TCanvas *c5=new TCanvas("c5","",1200,1000);
-  TH2F *h5_a=new TH2F("h5_a","",10,1,4,100,-1,1.5);
+  TCanvas *c7=new TCanvas("c7","",1200,1000);
+  TH2F *h5_a=new TH2F("h5_a","",10,0,4,100,-1,1.5);
   h5_a->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h5_a->GetYaxis()->SetTitle("Electron nsigma Mean");
     
   
-  TF1 *fmean=new TF1(TString("fmean"),"[0]",1,4);
-  TF1 *fmean_u=new TF1(TString("fmean_u"),"[0]",1,4);
-  TF1 *fmean_d=new TF1(TString("fmean_d"),"[0]",1,4);
-  TF1 *fsigma=new TF1(TString("fsigma"),"[0]",1,4);
-  TF1 *fsigma_u=new TF1(TString("fsigma_u"),"[0]",1,4);
-  TF1 *fsigma_d=new TF1(TString("fsigma_d"),"[0]",1,4);  
+  TF1 *fmean=new TF1(TString("fmean"),"[0]",0.2,4);
+  TF1 *fmean_u=new TF1(TString("fmean_u"),"[0]",0.2,4);
+  TF1 *fmean_d=new TF1(TString("fmean_d"),"[0]",0.2,4);
+  TF1 *fsigma=new TF1(TString("fsigma"),"[0]",0.2,4);
+  TF1 *fsigma_u=new TF1(TString("fsigma_u"),"[0]",0.2,4);
+  TF1 *fsigma_d=new TF1(TString("fsigma_d"),"[0]",0.2,4);  
   
   fmean_u->SetLineStyle(7);
   fmean_d->SetLineStyle(7);
@@ -254,16 +280,16 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
   Sigma->Draw("same");
   
 
-  Mean->Fit(fmean,"R","same",1,4); 
-  Mean_u->Fit(fmean_u,"R0","same",1,4); 
-  Mean_d->Fit(fmean_d,"R0","same",1,4); 
+  Mean->Fit(fmean,"R","same",0.2,4); 
+  Mean_u->Fit(fmean_u,"R0","same",0.2,4); 
+  Mean_d->Fit(fmean_d,"R0","same",0.2,4); 
   
-  Sigma->Fit(fsigma,"R","same",1,4);
-  Sigma_u->Fit(fsigma_u,"R0","same",1,4);
-  Sigma_d->Fit(fsigma_d,"R0","same",1,4);
+  Sigma->Fit(fsigma,"R","same",0.2,4);
+  Sigma_u->Fit(fsigma_u,"R0","same",0.2,4);
+  Sigma_d->Fit(fsigma_d,"R0","same",0.2,4);
   
-  fmean_u->SetParameter(0,fmean->GetParameter(0)+0.04);
-  fmean_d->SetParameter(0,fmean->GetParameter(0)-0.04);
+  fmean_u->SetParameter(0,fmean->GetParameter(0)+0.045);
+  fmean_d->SetParameter(0,fmean->GetParameter(0)-0.045);
 
   fsigma_u->SetParameter(0,fsigma->GetParameter(0)+0.035);
   fsigma_d->SetParameter(0,fsigma->GetParameter(0)-0.035);
@@ -274,7 +300,7 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
     {
 
       Mean_Fit->SetBinContent(ipt+1,fmean->GetParameter(0));
-      Mean_Fit->SetBinError(ipt+1,0.04);
+      Mean_Fit->SetBinError(ipt+1,0.045);
       
       Sigma_Fit->SetBinContent(ipt+1,fsigma->GetParameter(0));
       Sigma_Fit->SetBinError(ipt+1,0.035);
@@ -295,16 +321,17 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
   sprintf(buf,"Electron Sigma: pol0:  %2.2f +- %4.3f",fsigma->GetParameter(0),0.035);
   drawLatex(0.15,0.75,buf,70,0.035,2);
 
-  c5->SaveAs("Nsigma_mean_sigma_primary.pdf");
+  c7->SaveAs("Nsigma_mean_sigma_primary.pdf");
 
 
+ 
 
    // nsigmaE_pi[0]->RebinX(2);
    // nsigmaE_proton[0]->RebinX(2);
    // nsigmaE_kaon[0]->RebinX(2);
    
   TCanvas *c6=new TCanvas("c6","",1000,800);
-  TH2F *h6=new TH2F("h6","",10,1,4,100,-7,1);
+  TH2F *h6=new TH2F("h6","",10,0,4,100,-7,1);
   h6->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h6->GetYaxis()->SetTitle("");
   
@@ -365,8 +392,8 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
    TH1F *proton_nsigmaE= (TH1F *) Mean->Clone("proton_nsigmaE");
    TH1F *kaon_nsigmaE= (TH1F *) Mean->Clone("kaon_nsigmaE");
 
-   TCanvas *c7=new TCanvas("c7","",1000,800);
-   TH2F *h7=new TH2F("h7","",10,1,4,100,-8,1);
+   TCanvas *c8=new TCanvas("c8","",1000,800);
+   TH2F *h7=new TH2F("h7","",10,0,4,100,-8,1);
    h7->GetXaxis()->SetTitle("p_{T} (GeV/c)");
    h7->GetYaxis()->SetTitle("");
    
@@ -407,7 +434,7 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_MB],TH1F *m
    legend_7 ->SetTextFont(62);
    legend_7->Draw();
    
-   c7->SaveAs("hadron_nsigmaE_calibration_primary.pdf");
+   c8->SaveAs("hadron_nsigmaE_calibration_primary.pdf");
 
    TFile *File=new TFile("nSigmaE_calibration_primary.root","RECREATE");
    

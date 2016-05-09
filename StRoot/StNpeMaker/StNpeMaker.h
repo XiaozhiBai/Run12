@@ -211,6 +211,18 @@ class StNpeMaker
   TH2F *mh2_Kaon_nSigmaElec;
   TH2F *mh2_Proton_nSigmaElec;
   TH2F *mh2_InvMass;;
+
+
+  //----------------------------------------- for siwei Jpsi poe study-------------------------
+
+   TH3F *mh3poe0_pT_Partner_Mass_trg_unlike[nTrg]; 
+   TH3F *mh3poe0_pT_Partner_Mass_trg_like[nTrg]; 
+
+   TH3F *mh3poe0_pT_Partner_Mass_unlike[nTrg]; 
+   TH3F *mh3poe0_pT_Partner_Mass_like[nTrg]; 
+
+
+  //----------------------------------------- for siwei Jpsi poe study-------------------------
   
   
   ClassDef(StNpeMaker, 1)

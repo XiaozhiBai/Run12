@@ -88,7 +88,7 @@ TH1F::SetDefaultSumw2();
 
   TH1F *nsigmaE_inclusive[NpT_bins_run12_HT];
 
-  TFile * inFile=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+  TFile * inFile=new TFile("../RootFile/Root_File_5_1/hist_5_1.root","READ");
   TH2F * nsigmaE_inclusive_Trig0=(TH2F *) inFile->Get("mh2nSigmaElecTrg0"); 
   TH2F * nsigmaE_inclusive_Trig1=(TH2F *) inFile->Get("mh2nSigmaElecTrg1"); 
 
@@ -99,7 +99,7 @@ TH1F::SetDefaultSumw2();
   for(Int_t ipt=0;ipt<NpT_bins_run12_HT;ipt++)
     {
       sprintf(buf,"nSigmaE_pt%i",ipt);
-      nsigmaE_inclusive[ipt]=(TH1F *) nsigmaE_inclusive_Trig0->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt]);
+      nsigmaE_inclusive[ipt]=(TH1F *) nsigmaE_inclusive_Trig0->ProjectionX(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt]);
       nsigmaE_inclusive[ipt]->Rebin(3);
       nsigmaE_inclusive[ipt]->SetMarkerStyle(24);
       nsigmaE_inclusive[ipt]->SetMarkerSize(0.5);
@@ -124,6 +124,12 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
   TH1D *purity_twoSigma=new TH1D("purity_twoSigma","",NpT_bins_run12_HT,pt_run12_HT);
   TH1D *purity_threeSigma=new TH1D("purity_threeSigma","",NpT_bins_run12_HT,pt_run12_HT);
 
+
+  TH1F * mh1Electron_Constant=new TH1F("mh1Electron_Constant","",NpT_bins_run12_HT,pt_run12_HT);
+  TH1F * mh1Electron_Mean=new TH1F("mh1Electron_Mean","",NpT_bins_run12_HT,pt_run12_HT);
+  TH1F * mh1Electron_Sigma=new TH1F("mh1Electron_Sigma","",NpT_bins_run12_HT,pt_run12_HT);
+
+  
   gStyle->SetOptFit(111);
 
   TCanvas *c2=new TCanvas("c2","",1200,800);
@@ -143,7 +149,7 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       TF1 * g2=new TF1(TString("g2"),"[0]*TMath::Gaus(x,[1],[2],1)",-15,15);   
       TF1 *  g3=new TF1(TString("g3"),"[0]*TMath::Gaus(x,[1],[2],1)",-15,15); 
       
-      total_3->SetParNames("k+p C", "k+p #mu", "k+p #sigma", "#pi C", "#pi #mu", "#pi #sigma","e C","e #mu","e #sigma");
+      //   total_3->SetParNames("k+p C", "k+p #mu", "k+p #sigma", "#pi C", "#pi #mu", "#pi #sigma","e C","e #mu","e #sigma");
       total_3->SetLineColor(kBlue);
       g1->SetLineColor(kRed);
       g2->SetLineColor(kGreen+3);
@@ -161,7 +167,7 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
         }
       if(Npad==7) Npad=1;
       
-      nsigmaE_inclusive[ipt]->SetTitle(mh1_pT_Title[ipt]);
+      nsigmaE_inclusive[ipt]->SetTitle(mh1_pT_Title_HT[ipt]);
       nsigmaE_inclusive[ipt]->GetXaxis()->SetTitle("nSigmaE");
       nsigmaE_inclusive[ipt]->GetYaxis()->SetTitle("Counts");
       
@@ -187,8 +193,8 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       total_3->SetParLimits(4,pi_Mean->GetBinContent(ipt+1)-0.5,pi_Mean->GetBinContent(ipt+1)+0.5);
       total_3->SetParLimits(5,0.8,1.2);
       
-      total_3->SetParLimits(7,electron_Mean->GetBinContent(ipt+1)-3*electron_Mean->GetBinError(ipt+1),electron_Mean->GetBinContent(ipt+1)+3*electron_Mean->GetBinError(ipt+1));
-      total_3->SetParLimits(8,electron_Sigma->GetBinContent(ipt+1)-3*electron_Sigma->GetBinError(ipt+1),electron_Sigma->GetBinContent(ipt+1)+3*electron_Sigma->GetBinError(ipt+1));
+      total_3->SetParLimits(7,electron_Mean->GetBinContent(ipt+1)-electron_Mean->GetBinError(ipt+1),electron_Mean->GetBinContent(ipt+1)+electron_Mean->GetBinError(ipt+1));
+      total_3->SetParLimits(8,electron_Sigma->GetBinContent(ipt+1)-electron_Sigma->GetBinError(ipt+1),electron_Sigma->GetBinContent(ipt+1)+electron_Sigma->GetBinError(ipt+1));
       
       // //total_3->SetParLimits(1, );
       
@@ -212,6 +218,17 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       g1->Draw("same");
       g2->Draw("same");
       g3->Draw("same");
+
+
+      mh1Electron_Constant->SetBinContent(ipt+1,total_3->GetParameter(6));
+      mh1Electron_Constant->SetBinError(ipt+1,total_3->GetParError(6));
+      
+      mh1Electron_Mean->SetBinContent(ipt+1,total_3->GetParameter(7));
+      mh1Electron_Mean->SetBinError(ipt+1,total_3->GetParError(7));
+      
+      mh1Electron_Sigma->SetBinContent(ipt+1,total_3->GetParameter(8));
+      mh1Electron_Sigma->SetBinError(ipt+1,total_3->GetParError(8));
+
       
       
       TLegend *legend = new TLegend(0.15,0.65,0.35,0.8);
@@ -229,6 +246,7 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       c3->SaveAs("purity_fit_c3.pdf");
 
 
+ 
             
       Double_t mPurity=g1->Integral(-1,3)/total_3->Integral(-1,3);
       purity_HT->SetBinContent(ipt+1,mPurity);
@@ -241,7 +259,8 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       Double_t mPurity_temp_twoSigma= Fit_purity(nsigmaE_inclusive[ipt],ipt,electron_Mean->GetBinError(ipt+1),electron_Sigma->GetBinError(ipt+1),total_3,g1,g2,g3,2,1); 
       Double_t mPurity_temp_threeSigma= Fit_purity(nsigmaE_inclusive[ipt],ipt,electron_Mean->GetBinError(ipt+1),electron_Sigma->GetBinError(ipt+1),total_3,g1,g2,g3,3,1); 
 
-      
+
+
       purity_oneSigma->SetBinContent(ipt+1,mPurity_temp_oneSigma);
       purity_twoSigma->SetBinContent(ipt+1,mPurity_temp_twoSigma);
       purity_threeSigma->SetBinContent(ipt+1,mPurity_temp_threeSigma);
@@ -260,7 +279,8 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
       
       if(abs(purity_mean-mPurity_temp_threeSigma)>mPurity_sys)
 	mPurity_sys=abs(purity_mean-mPurity_temp_threeSigma);
-      
+
+
 
 
 
@@ -280,9 +300,17 @@ void Fit_electron_purity(TH1F * nsigmaE_inclusive[])
 
     }
 
+  
   Draw_purity_sys(purity_oneSigma,purity_twoSigma,purity_threeSigma);
 
   Draw_purity(purity_HT);
+
+  TFile *file_3=new TFile("Mean_Sigma_Hadron.root","RECREATE");
+
+  mh1Electron_Constant->Write();
+   mh1Electron_Mean->Write();
+   mh1Electron_Sigma->Write();
+  
 }
 Double_t Fit_purity(TH1F * const inclusive,Int_t ipt,Float_t E_mean_err,Float_t E_sigma_err,TF1 *total_3,TF1 * g1,TF1 *g2,TF1 *g3, Int_t Sigma_flag,Int_t Draw_flag)
 {
@@ -290,14 +318,14 @@ Double_t Fit_purity(TH1F * const inclusive,Int_t ipt,Float_t E_mean_err,Float_t 
   TCanvas * c4=new TCanvas("c4","",1200,800);
   gPad->SetLogy();
   
-  total_3->SetParNames("k+p C", "k+p #mu", "k+p #sigma", "#pi C", "#pi #mu", "#pi #sigma","e C","e #mu","e #sigma");
+  //  total_3->SetParNames("k+p C", "k+p #mu", "k+p #sigma", "#pi C", "#pi #mu", "#pi #sigma","e C","e #mu","e #sigma");
   total_3->SetLineColor(kBlue);
   g1->SetLineColor(kRed);
   g2->SetLineColor(kGreen+3);
   g3->SetLineColor(kMagenta);
   
   
-  Inclusive->SetTitle(mh1_pT_Title[ipt]);
+  Inclusive->SetTitle(mh1_pT_Title_HT[ipt]);
   Inclusive->GetXaxis()->SetTitle("nSigmaE");
   Inclusive->GetYaxis()->SetTitle("Counts");
   
@@ -382,24 +410,25 @@ Double_t Get_sts_Error(TH1F * const inclusive,Int_t ipt,TF1 * total_3, TF1 *g1,T
   Double_t bin_high=purity_mean+50*purity_err;
   if(ipt==0)
     {
-      bin_low=purity_mean-1000*purity_err;
-      bin_high=purity_mean+1000*purity_err;
+      bin_low=purity_mean-1e5*purity_err;
+      bin_high=purity_mean+1e5*purity_err;
     }
 
   if(ipt==1)
     {
-      bin_low=purity_mean-100000*purity_err;
-      bin_high=purity_mean+100000*purity_err;
+      bin_low=purity_mean-100*purity_err;
+      bin_high=purity_mean+100*purity_err;
     }
 
-  if(ipt==2)
-    {
-      bin_low=purity_mean-40000*purity_err;
-      bin_high=purity_mean+40000*purity_err;
-    }
+  // if(ipt==2)
+  //   {
+  //     bin_low=purity_mean-40000*purity_err;
+  //     bin_high=purity_mean+40000*purity_err;
+  //   }
 
 
   TH1F *mh1purity_sts=new TH1F(buf,"",800,bin_low,bin_high);
+  mh1purity_sts->SetTitle(mh1_pT_Title_HT[ipt]);
   TF1 *f_Fit = new TF1(TString("f_Fit"),"gaus",-1,1);
   f_Fit->SetParameter(1,purity_mean);
   TH1F *nsigmae_inclusive_shift=(TH1F *) Inclusive->Clone("nsigmae_inclusive_shift");

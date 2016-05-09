@@ -74,7 +74,7 @@ void Tof_match_efficiency()
   // gStyle->SetEndErrorSize(4);
   
 
-     TFile *File=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+     TFile *File=new TFile("../RootFile/Root_File_5_2/hist_5_2.root","READ");
   
   for(Int_t ihist=0;ihist<mh2Nhist;ihist++)
     {
@@ -101,11 +101,11 @@ void Tof_match_efficiency()
       
     }
 
-  mh1hist_pT_unlike_like_total[0]->Draw();
-  mh1hist_pT_unlike_like_pass[0]->Draw("same");
-  mh1hist_pT_unlike_like_pass[0]->SetLineColor(2);
+  // mh1hist_pT_unlike_like_total[0]->Draw();
+  // mh1hist_pT_unlike_like_pass[0]->Draw("same");
+  // mh1hist_pT_unlike_like_pass[0]->SetLineColor(2);
 
-  return;
+  // return;
 
   TH1F *Pt_pass_rebin=(TH1F *)  mh1hist_pT_unlike_like_pass[0]->Rebin(NpT_bins_run12_MB,"Pt_pass_rebin",pt_run12_MB);
   TH1F *Pt_total_rebin=(TH1F *) mh1hist_pT_unlike_like_total[0]->Rebin(NpT_bins_run12_MB,"Pt_total_rebin",pt_run12_MB);
@@ -133,7 +133,7 @@ void Tof_match_efficiency()
   efficiency_tof_match->SetMarkerSize(1);
   efficiency_tof_match->SetMarkerColor(2);
   
-  TH2F *h2=new TH2F("h2","",100,2,10,100,0,1);
+  TH2F *h2=new TH2F("h2","",100,0.2,4,100,0,1);
   h2->GetXaxis()->SetTitle("P_{T} GeV/c");
   h2->GetYaxis()->SetTitle("BEMC efficiency"); 
   

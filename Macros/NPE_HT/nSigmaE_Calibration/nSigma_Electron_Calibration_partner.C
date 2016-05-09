@@ -38,7 +38,7 @@ char buf[1024];
 
 //TFile *file=new TFile("../RootFile/Root_File_2_26/hist_2_26.root","READ");
 //TFile *file=new TFile("../RootFile/Root_File_3_30/hist_3_30.root","READ");
-TFile *file=new TFile("../RootFile/Root_File_4_1/hist_4_1.root","READ");
+TFile *file=new TFile("../RootFile/Root_File_5_2/hist_5_2.root","READ");
 TH2F *nsigmaE_pi[nTrg];
 TH2F *nsigmaE_proton[nTrg];
 TH2F *nsigmaE_kaon[nTrg];
@@ -116,9 +116,9 @@ void nSigma_Electron_Calibration_partner()
   for(Int_t ipt=0;ipt<NpT_bins_run12_HT;ipt++)
     {
       sprintf(buf,"nSigmaE_unlike_pt%i",ipt);
-      mh1nSigmaE_unlike[ipt]=(TH1F *) mh3nSigmaE_pT_Mass_unlike[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20);
+      mh1nSigmaE_unlike[ipt]=(TH1F *) mh3nSigmaE_pT_Mass_unlike[0]->ProjectionX(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],1,20);
       sprintf(buf,"nSigmaE_like_pt%i",ipt);
-      mh1NisgmaE_like[ipt]=(TH1F *) mh3nSigmaE_pT_Mass_like[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20);
+      mh1NisgmaE_like[ipt]=(TH1F *) mh3nSigmaE_pT_Mass_like[0]->ProjectionX(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],1,20);
 
       sprintf(buf,"nSigmaE_unlike_like_pt%i",ipt);
       mh1nSigmaE_unlike_like[ipt]=(TH1F *)   mh1nSigmaE_unlike[ipt]->Clone(buf);
@@ -163,7 +163,7 @@ void Fit_electron_nsigma_Mean(TH1F *mh1NisgmaE_unlike[NpT_bins_run12_HT],TH1F *m
         }
       if(Npad==7) Npad=1;
 
-      mh1NisgmaE_unlike_like[ipt]->SetTitle(mh1_pT_Title[ipt]);
+      mh1NisgmaE_unlike_like[ipt]->SetTitle(mh1_pT_Title_HT[ipt]);
       mh1NisgmaE_unlike_like[ipt]->GetXaxis()->SetTitle("nSigmaE");
       mh1NisgmaE_unlike_like[ipt]->GetYaxis()->SetTitle("Counts");
 

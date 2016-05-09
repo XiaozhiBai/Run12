@@ -95,7 +95,7 @@ void Tof_Beta_Cut_efficiency()
 	char name[100],name1[10000],name2[100];
 	sprintf(name,"twogaus%d",ipt);
 	sprintf(name2,"eff%d",ipt);
-	heff = new TH1F(name2,"",1000,0.9,1.1); 
+	heff = new TH1F(name2,"",1000,0.8,1.1); 
 	
 	meant=mean[ipt];
 	meanerrt=meanerr[ipt];
@@ -110,8 +110,8 @@ void Tof_Beta_Cut_efficiency()
 	twogaus->SetParameter(3,meant);
 	twogaus->SetParameter(4,sigmat);
 
-	twogaus->GetXaxis()->SetTitle("n#sigma_{e} mean");
-	twogaus->GetYaxis()->SetTitle("n#sigma_{e} sigma");
+	twogaus->GetXaxis()->SetTitle("mean");
+	twogaus->GetYaxis()->SetTitle("sigma");
 
 	TF1 *gaus=new TF1("gaus","exp(-0.5*pow((x-[0])/[1],2))/sqrt(2.*TMath::Pi())/[1]",-4,4);
 	for(int j=0;j<40000;j++){
@@ -165,7 +165,7 @@ void Tof_Beta_Cut_efficiency()
     Tof_beta_cut_MB->SetMarkerSize(1);
     Tof_beta_cut_MB->SetMarkerColor(2);
     
-    TH2F *h2=new TH2F("h2","",100,1,4,100,0.8,1.1);
+    TH2F *h2=new TH2F("h2","",100,1,4,100,0,1.1);
     h2->GetXaxis()->SetTitle("p_{T} GeV/c");
     h2->GetYaxis()->SetTitle("beta cut efficiency"); 
     

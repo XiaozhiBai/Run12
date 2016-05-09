@@ -43,6 +43,10 @@ class StTrackingEfficiency
   TH1F *  mNTrack_cut_25;
   TH1F *  mNTrack_cut_20;
 
+  TH1F *  mNBEMC_nocuts;
+  TH1F *  mNBEMC_cut;
+  
+
  
   ClassDef(StTrackingEfficiency,1)
 

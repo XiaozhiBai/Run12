@@ -18,7 +18,7 @@
 #include "TGraphErrors.h"
 
 #include "../mBinning_HT.h"
-#include "../mBinning_MB.h"
+#include "../../NPE_MB/mBinning_MB.h"
 
 using namespace std;
 
@@ -87,7 +87,7 @@ void Draw_run12_Npe()
 
   // run12 HT
   TFile *file_run12_HT=new TFile("Data_Model/run12_Npe_HT.root","READ");
-
+  
   TH1F *run12_HT_NPE_sts=(TH1F *) file_run12_HT->Get("run12_HT_NPE_sts");
   TH1F *run12_HT_NPE_sys=(TH1F *) file_run12_HT->Get("run12_HT_NPE_sys");
   
@@ -122,7 +122,7 @@ void Draw_run12_Npe()
 
 
 
-  for(Int_t ipt=0;ipt<13;ipt++)
+  for(Int_t ipt=0;ipt<NpT_bins_run12_HT;ipt++)
     {
       gr_run12_HT_sys->SetPointError(ipt,0.1,gr_run12_HT_sys->GetErrorY(ipt));
       gr_run12_HT_sts->SetPointError(ipt,0,gr_run12_HT_sts->GetErrorY(ipt));
@@ -141,33 +141,18 @@ void Draw_run12_Npe()
 
 // run12 MB
 
-  TFile *file_run12_MB=new TFile("Data_Model/file_MB2012.root","READ");
 
-  TH1F *run12_MB_NPE_sts_all=(TH1F *) file_run12_MB->Get("run12MB_sts_comb");
-  TH1F *run12_MB_NPE_sys_all=(TH1F *) file_run12_MB->Get("run12MB_sts_comb");
+  TFile *file_run12_MB=new TFile("Data_Model/run12_Npe_MB.root","READ");
 
-  TH1F *run12_MB_NPE_sts=new TH1F("run12_MB_NPE_sts","",NpT_bins_run12_MB,pt_run12_MB);
-  TH1F *run12_MB_NPE_sys=new TH1F("run12_MB_NPE_sys","",NpT_bins_run12_MB,pt_run12_MB);
-  TH1F *run12_MB_FONLL=new TH1F("run12_MB_FONLL","",NpT_bins_run12_MB,pt_run12_MB);
-  TH1F *run12_MB_NPE_FONLL_sts=new TH1F("run12_MB_NPE_FONLL_sts","",NpT_bins_run12_MB,pt_run12_MB);
-  TH1F *run12_MB_NPE_FONLL_sys=new TH1F("run12_MB_NPE_FONLL_sys","",NpT_bins_run12_MB,pt_run12_MB);
+  TH1F *run12_MB_NPE_sts =(TH1F *) file_run12_MB->Get("run12_MB_NPE_sts");
+  TH1F *run12_MB_NPE_sys=(TH1F *) file_run12_MB->Get("run12_MB_NPE_sys");
+  TH1F *run12_MB_NPE_FONLL_sts =(TH1F *) file_run12_MB->Get("run12_MB_NPE_FONLL_sts");
+  TH1F *run12_MB_NPE_FONLL_sys=(TH1F *) file_run12_MB->Get("run12_MB_NPE_FONLL_sys");
+  
 
-  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
-    {
-      run12_MB_NPE_sts->SetBinContent(ipt+1,run12_MB_NPE_sts_all->GetBinContent(ipt+18));
-      run12_MB_NPE_sys->SetBinContent(ipt+1,run12_MB_NPE_sys_all->GetBinContent(ipt+18));
-   
-      run12_MB_NPE_sts->SetBinError(ipt+1,run12_MB_NPE_sts_all->GetBinError(ipt+18));
-      run12_MB_NPE_sys->SetBinError(ipt+1,run12_MB_NPE_sys_all->GetBinError(ipt+18));
-   
-      run12_MB_FONLL->SetBinContent(ipt+1,gFONLLc->Eval(run12_MB_FONLL->GetBinCenter(ipt+1)));
-      run12_MB_FONLL->SetBinError(ipt+1,0);
 
-    }
 
-  run12_MB_NPE_FONLL_sts->Divide(run12_MB_NPE_sts,run12_MB_FONLL,1,1);
-  run12_MB_NPE_FONLL_sys->Divide(run12_MB_NPE_sys,run12_MB_FONLL,1,1);
-
+  
 
   TGraphErrors* gr_run12_MB_sts = new TGraphErrors(run12_MB_NPE_sts);
   TGraphErrors* gr_run12_MB_sys = new TGraphErrors(run12_MB_NPE_sys);
@@ -196,12 +181,12 @@ void Draw_run12_Npe()
 
 
 
-  for(Int_t ipt=0;ipt<13;ipt++)
+  for(Int_t ipt=0;ipt<NpT_bins_run12_MB;ipt++)
     {
-      gr_run12_MB_sys->SetPointError(ipt,0.1,gr_run12_MB_sys->GetErrorY(ipt));
+      gr_run12_MB_sys->SetPointError(ipt,0.04,gr_run12_MB_sys->GetErrorY(ipt));
       gr_run12_MB_sts->SetPointError(ipt,0,gr_run12_MB_sts->GetErrorY(ipt));
       
-      gr_run12_MB_FONLL_sys->SetPointError(ipt,0.1,gr_run12_MB_FONLL_sys->GetErrorY(ipt));
+      gr_run12_MB_FONLL_sys->SetPointError(ipt,0.04,gr_run12_MB_FONLL_sys->GetErrorY(ipt));
       gr_run12_MB_FONLL_sts->SetPointError(ipt,0,gr_run12_MB_FONLL_sts->GetErrorY(ipt));
     }
 
@@ -280,8 +265,41 @@ void Draw_run12_Npe()
    gr_run08_HT_sys->SetFillColor(gColor08_fill);
 
 
+   // phinex
 
-  TH2D *h_1 = new TH2D("h_1","",150,1,11,100,0.5e-13,0.1);
+   TGraphErrors* PhNEX_sts = new TGraphErrors("Data_Model/Npe_Phenix_cross_section.dat","%lg %lg %lg");
+   TGraphErrors* PhNEX_sys = new TGraphErrors("Data_Model/Npe_Phenix_cross_section.dat","%lg %lg %*lg %lg");
+  
+  
+  PhNEX_sts->SetMarkerStyle(20);
+  PhNEX_sys->SetMarkerStyle(20);
+  
+  PhNEX_sts->SetName("PhNEX_sts");
+  PhNEX_sys->SetName("PhNEX_sys");
+
+  PhNEX_sts->SetMarkerColor(3);
+  PhNEX_sys->SetMarkerColor(3);
+
+  PhNEX_sts->SetLineColor(1);
+  PhNEX_sys->SetLineColor(3);
+
+  TGraphErrors* PhNEX_sts_fonll = new TGraphErrors("Data_Model/Npe_Phenix_cross_section_fonll_ratio.dat","%lg %lg %lg");
+  TGraphErrors* PhNEX_sys_fonll = new TGraphErrors("Data_Model/Npe_Phenix_cross_section_fonll_ratio.dat","%lg %lg %*lg %lg");
+
+  PhNEX_sts_fonll->SetMarkerStyle(20);
+  PhNEX_sys_fonll->SetMarkerStyle(20);
+  
+  PhNEX_sts_fonll->SetName("PhNEX_sts_fonll");
+  PhNEX_sys_fonll->SetName("PhNEX_sys_fonll");
+
+  PhNEX_sts_fonll->SetMarkerColor(3);
+  PhNEX_sys_fonll->SetMarkerColor(3);
+
+  PhNEX_sts_fonll->SetLineColor(1);
+  PhNEX_sys_fonll->SetLineColor(3);
+  
+
+  TH2D *h_1 = new TH2D("h_1","",150,0.2,11,100,0.5e-13,0.1);
   h_1->GetXaxis()->SetTitle("p_{T}^{e} (GeV/c)");
   h_1->GetYaxis()->SetTitle("Ed^{3}#sigma/dp^{3}(mb Gev^{-2}c^{3})"); 
   // h_1->GetXaxis()->CenterTitle();  
@@ -318,6 +336,8 @@ void Draw_run12_Npe()
    gr_run08_HT_sys->Draw("sameE2");
    gr_run08_HT_sts->Draw("sameP");
 
+   PhNEX_sts->Draw("samePE");
+   PhNEX_sys->Draw("p[]:same");
 
    gr_run12_MB_sys->Draw("sameE2");
    gr_run12_MB_sts->Draw("sameP");
@@ -336,7 +356,7 @@ void Draw_run12_Npe()
   legend_2 ->AddEntry(gr_run12_HT_sts,"Run12 BEMC ","lp");
   // legend_2 ->AddEntry(data09_stat_err,"Run09","lp");
   legend_2 ->AddEntry(gr_run08_HT_sts,"Run05+Run08","lp");
-  // legend_2 ->AddEntry(PhNEX_sts,"PHENIX ^{[2]}","lp");
+   legend_2 ->AddEntry(PhNEX_sts,"PHENIX Run05","lp");
   legend_2 ->AddEntry(gFONLLc,"FONLL","lp");
   //  legend_2 ->AddEntry(gFONLLl,"FONLL Uncertainty","lp");
   legend_2 ->SetBorderSize(0);
@@ -361,13 +381,13 @@ void Draw_run12_Npe()
   cc1->cd(2)->SetBottomMargin(0.14);
   cc1->cd(2)->SetLeftMargin(0.1);
   gPad->SetLogy();
-  TLine *line1 = new TLine(1,1,11,1);
+  TLine *line1 = new TLine(0.2,1,11,1);
   line1->SetLineStyle(lStyle_c);
   line1->SetLineColor(lColor);
   line1->SetLineWidth(lWidth);
   
 
-  TH2D *h_2 = new TH2D("h_2","",150,1,11,100,0.25,5.999);
+  TH2D *h_2 = new TH2D("h_2","",150,0.2,11,100,0.25,5.999);
   // h_frame->GetYaxis()->SetRangeUser(0,6);
   // h_frame->SetTitle("ratio");
   h_2->GetYaxis()->SetTitle("Data/FONLL");
@@ -403,6 +423,8 @@ void Draw_run12_Npe()
    gr_run08_HT_FONLL_sts->Draw("sameP");
    gr_run08_HT_FONLL_sys->Draw("sameE2");
 
+   PhNEX_sts_fonll->Draw("samePE");
+   PhNEX_sys_fonll->Draw("p[]:same");
 
    gr_run12_MB_FONLL_sys->Draw("sameE2");
    gr_run12_MB_FONLL_sts->Draw("sameP");

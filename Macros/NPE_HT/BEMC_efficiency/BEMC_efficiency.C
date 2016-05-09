@@ -27,11 +27,24 @@ TH1F *mh1hist_pT_unlike_pass[mh2Nhist];
 TH1F *mh1hist_pT_like_pass[mh2Nhist];
 TH1F *mh1hist_pT_unlike_like_pass[mh2Nhist];
 
+
+TH1F *mh1hist_pT_unlike_pass_sys[mh2Nhist];
+TH1F *mh1hist_pT_like_pass_sys[mh2Nhist];
+TH1F *mh1hist_pT_unlike_like_pass_sys[mh2Nhist];
+
+
 TH2F *mh2hist_unlike_total[mh2Nhist];
 TH2F *mh2hist_like_total[mh2Nhist];
+
 TH1F *mh1hist_pT_unlike_total[mh2Nhist];
 TH1F *mh1hist_pT_like_total[mh2Nhist];
 TH1F *mh1hist_pT_unlike_like_total[mh2Nhist];
+
+TH1F *mh1hist_pT_unlike_total_sys[mh2Nhist];
+TH1F *mh1hist_pT_like_total_sys[mh2Nhist];
+TH1F *mh1hist_pT_unlike_like_total_sys[mh2Nhist];
+
+
 
 TH3F *mh3hist_unlike_partnernSigmaE_pt[mh2Nhist];
 TH3F *mh3hist_like_partnernSigmaE_pt[mh2Nhist];
@@ -80,7 +93,7 @@ void BEMC_efficiency()
   
    //    TFile *File=new TFile("../RootFile/Root_File_2_26/hist_2_26.root","READ");
    //dev/   TFile *File=new TFile("../RootFile/Root_File_3_30/hist_3_30.root","READ");
-     TFile *File=new TFile("../RootFile/Root_File_4_13/hist_4_13.root","READ");
+     TFile *File=new TFile("../RootFile/Root_File_5_1/hist_5_1.root","READ");
   
   for(Int_t ihist=0;ihist<mh2Nhist;ihist++)
     {
@@ -90,20 +103,43 @@ void BEMC_efficiency()
       mh2hist_like_total[ihist]=(TH2F *) File->Get(mh2HistName_Photonic_like_total[ihist]);
       
       sprintf(buf,"unlike_passTrg%i",ihist);
-      mh1hist_pT_unlike_pass[ihist]=(TH1F *)mh2hist_unlike_pass[ihist]->ProjectionX(buf,1,20,"e");
+      mh1hist_pT_unlike_pass[ihist]=(TH1F *)mh2hist_unlike_pass[ihist]->ProjectionX(buf,1,10);
       sprintf(buf,"like_passTrg%i",ihist);
-      mh1hist_pT_like_pass[ihist]=(TH1F *)mh2hist_like_pass[ihist]->ProjectionX(buf,1,20,"e");
+      mh1hist_pT_like_pass[ihist]=(TH1F *)mh2hist_like_pass[ihist]->ProjectionX(buf,1,10);
       sprintf(buf,"unlike_like_passTrg%i",ihist);
       mh1hist_pT_unlike_like_pass[ihist]=(TH1F *)mh1hist_pT_unlike_pass[ihist]->Clone(buf);
       mh1hist_pT_unlike_like_pass[ihist]->Add(mh1hist_pT_like_pass[ihist],-1);
 
+      // sys
+      sprintf(buf,"unlike_passTrg_sys%i",ihist);
+      mh1hist_pT_unlike_pass_sys[ihist]=(TH1F *)mh2hist_unlike_pass[ihist]->ProjectionX(buf,1,20);
+      sprintf(buf,"like_passTrg_sys%i",ihist);
+      mh1hist_pT_like_pass_sys[ihist]=(TH1F *)mh2hist_like_pass[ihist]->ProjectionX(buf,1,20);
+      sprintf(buf,"unlike_like_passTrg_sys%i",ihist);
+      mh1hist_pT_unlike_like_pass_sys[ihist]=(TH1F *)mh1hist_pT_unlike_pass_sys[ihist]->Clone(buf);
+      mh1hist_pT_unlike_like_pass_sys[ihist]->Add(mh1hist_pT_like_pass_sys[ihist],-1);
+
+
+
+
+      
       sprintf(buf,"unlike_totalTrg%i",ihist);
-      mh1hist_pT_unlike_total[ihist]=(TH1F *)mh2hist_unlike_total[ihist]->ProjectionX(buf,1,20,"e");
+      mh1hist_pT_unlike_total[ihist]=(TH1F *)mh2hist_unlike_total[ihist]->ProjectionX(buf,1,10);
       sprintf(buf,"like_totalTrg%i",ihist);
-      mh1hist_pT_like_total[ihist]=(TH1F *)mh2hist_like_total[ihist]->ProjectionX(buf,1,20,"e");
+      mh1hist_pT_like_total[ihist]=(TH1F *)mh2hist_like_total[ihist]->ProjectionX(buf,1,10);
       sprintf(buf,"unlike_like_totalTrg%i",ihist);
       mh1hist_pT_unlike_like_total[ihist]=(TH1F *)mh1hist_pT_unlike_total[ihist]->Clone(buf);
       mh1hist_pT_unlike_like_total[ihist]->Add(mh1hist_pT_like_total[ihist],-1);
+
+      //sys
+      sprintf(buf,"unlike_totalTrg_sys%i",ihist);
+      mh1hist_pT_unlike_total_sys[ihist]=(TH1F *)mh2hist_unlike_total[ihist]->ProjectionX(buf,1,20);
+      sprintf(buf,"like_totalTrg_sys%i",ihist);
+      mh1hist_pT_like_total_sys[ihist]=(TH1F *)mh2hist_like_total[ihist]->ProjectionX(buf,1,20);
+      sprintf(buf,"unlike_like_totalTrg_sys%i",ihist);
+      mh1hist_pT_unlike_like_total_sys[ihist]=(TH1F *)mh1hist_pT_unlike_total_sys[ihist]->Clone(buf);
+      mh1hist_pT_unlike_like_total_sys[ihist]->Add(mh1hist_pT_like_total_sys[ihist],-1);
+
       
       mh3hist_unlike_partnernSigmaE_pt[ihist]=(TH3F *) File->Get(mh3HistName_Photonic_unlike_total[ihist]);
       mh3hist_like_partnernSigmaE_pt[ihist]=(TH3F *) File->Get(mh3HistName_Photonic_like_total[ihist]);
@@ -123,28 +159,59 @@ void BEMC_efficiency()
   mh1hist_pT_unlike_like_pass[0]->Add(mh1hist_pT_unlike_like_pass[1],1);
   mh1hist_pT_unlike_like_total[0]->Add(mh1hist_pT_unlike_like_total[1],1);
   
+  mh1hist_pT_unlike_like_pass_sys[0]->Add(mh1hist_pT_unlike_like_pass_sys[1],1);
+  mh1hist_pT_unlike_like_total_sys[0]->Add(mh1hist_pT_unlike_like_total_sys[1],1);
 
 
+
+  TFile *file=new TFile("Tracking_eff_HT.root","READ");
+
+  TH1F *mNBEMC_nocuts=(TH1F *) file->Get("mNBEMC_nocuts");
+  TH1F *mNBEMC_cut=(TH1F *) file->Get("mNBEMC_cut");
+
+  TH1F *mNBEMC_nocuts_rebin=(TH1F *)  mNBEMC_nocuts->Rebin(NpT_bins_run12_HT,"mNBEMC_nocuts_rebin",pt_run12_HT);
+  TH1F *mNBEMC_cut_rebin=(TH1F *) mNBEMC_cut->Rebin(NpT_bins_run12_HT,"mNBEMC_cut_rebin",pt_run12_HT);
+  
 
   TH1F *Pt_pass_rebin=(TH1F *)  mh1hist_pT_unlike_like_pass[0]->Rebin(NpT_bins_run12_HT,"Pt_pass_rebin",pt_run12_HT);
   TH1F *Pt_total_rebin=(TH1F *) mh1hist_pT_unlike_like_total[0]->Rebin(NpT_bins_run12_HT,"Pt_total_rebin",pt_run12_HT);
 
+  TH1F *Pt_pass_rebin_sys=(TH1F *)  mh1hist_pT_unlike_like_pass_sys[0]->Rebin(NpT_bins_run12_HT,"Pt_pass_rebin_sys",pt_run12_HT);
+  TH1F *Pt_total_rebin_sys=(TH1F *) mh1hist_pT_unlike_like_total_sys[0]->Rebin(NpT_bins_run12_HT,"Pt_total_rebin_sys",pt_run12_HT);
+
+
+  
   // for(Int_t ipt=0;ipt<NpT_bins_run12_HT;ipt++)
   //   {
   //     cout<< " psss " <<Pt_pass_rebin->GetBinContent(ipt+1)<< " total "<<Pt_total_rebin->GetBinContent(ipt+1)<< " ratio"<< Pt_pass_rebin->GetBinContent(ipt+1)/Pt_total_rebin->GetBinContent(ipt+1)<<endl;;
   //   }
-  
+  //TGraphAsymmErrors *efficiency_mc=new TGraphAsymmErrors(mNBEMC_cut_rebin,mNBEMC_nocuts_rebin,"N");
   TGraphAsymmErrors *efficiency=new TGraphAsymmErrors(Pt_pass_rebin,Pt_total_rebin,"N");
+  TGraphAsymmErrors *efficiency_sys=new TGraphAsymmErrors(Pt_pass_rebin_sys,Pt_total_rebin_sys,"N");
+
+  // efficiency->GetYaxis()->SetRangeUser(0,1);
+  // efficiency->Draw();
+  // efficiency_mc->Draw("same");
+  // return ;
+  
   
   TH1F *efficiency_bemc=new TH1F("efficiency_bemc","",NpT_bins_run12_HT,pt_run12_HT);
+
   
   for(Int_t i=0;i<NpT_bins_run12_HT;i++)
     {
       Double_t x=0,y=0,x_err=0,y_err=0;
+      Double_t x_sys=0,y_sys=0,x_err_sys=0,y_err_sys=0;
+
       efficiency->GetPoint(i,x,y);
       y_err=efficiency->GetErrorY(i);
+
+      efficiency_sys->GetPoint(i,x_sys,y_sys);
+      y_err_sys=efficiency_sys->GetErrorY(i);
+
+      Double_t bemc_err=sqrt(y_err*y_err+(y-y_sys)*(y-y_sys));
       efficiency_bemc->SetBinContent(efficiency_bemc->FindBin(x),y);
-      efficiency_bemc->SetBinError(i+1,y_err);
+      efficiency_bemc->SetBinError(i+1,bemc_err);
 
     }
   // return;
@@ -152,7 +219,7 @@ void BEMC_efficiency()
   efficiency_bemc->SetMarkerSize(1);
   efficiency_bemc->SetMarkerColor(2);
   
-  TH2F *h2=new TH2F("h2","",100,2,10,100,0,1);
+  TH2F *h2=new TH2F("h2","",100,2,14,100,0,1);
   h2->GetXaxis()->SetTitle("P_{T} GeV/c");
   h2->GetYaxis()->SetTitle("BEMC efficiency"); 
   
@@ -161,6 +228,8 @@ void BEMC_efficiency()
   efficiency_bemc->Draw("P");
   h2->Draw();
   efficiency_bemc->Draw("same");
+  //  efficiency_sys->Draw("same");
+
   c2->SaveAs("Bemc_efficiency.pdf");
   
   gStyle->SetOptStat(1111);     
@@ -197,9 +266,9 @@ void BEMC_efficiency()
 	  // inv Mass
 	  if(ihist==0){
 	    sprintf(buf,"mass_unlike%ihist%ipt",ihist,ipt);
-	    mh1hist_unlike[ihist][ipt]=(TH1F *)mh2hist_unlike_pass[0]->ProjectionY(buf,ptBinX_low[ipt],ptBinX_high[ipt],"eo");
+	    mh1hist_unlike[ihist][ipt]=(TH1F *)mh2hist_unlike_pass[0]->ProjectionY(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],"eo");
 	    sprintf(buf,"mass_like%ihist%ipt",ihist,ipt);
-	    mh1hist_like[ihist][ipt]=(TH1F *)mh2hist_like_pass[0]->ProjectionY(buf,ptBinX_low[ipt],ptBinX_high[ipt],"eo");
+	    mh1hist_like[ihist][ipt]=(TH1F *)mh2hist_like_pass[0]->ProjectionY(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],"eo");
  	    sprintf(buf,"mass_unlike_like%ihist%ipt",ihist,ipt);
 	    mh1hist_unlike_like[ihist][ipt]=(TH1F *)mh1hist_unlike[ihist][ipt]->Clone(buf);
 	    mh1hist_unlike_like[ihist][ipt]->Add(mh1hist_like[ihist][ipt],-1);
@@ -210,10 +279,10 @@ void BEMC_efficiency()
 	  
 	  if(ihist==1){
 	    sprintf(buf,"partnerNsigmaE_unlike%ihist%ipt",ihist,ipt);
-	    mh1hist_unlike[ihist][ipt]=(TH1F *) mh3hist_unlike_partnernSigmaE_pt[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20,"eo");
+	    mh1hist_unlike[ihist][ipt]=(TH1F *) mh3hist_unlike_partnernSigmaE_pt[0]->ProjectionX(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],1,20,"eo");
 	    sprintf(buf,"partnerNsigmaE_like%ihist%ipt",ihist,ipt);
-	    mh1hist_like[ihist][ipt]=(TH1F *) mh3hist_like_partnernSigmaE_pt[0]->ProjectionX(buf,ptBinX_low[ipt],ptBinX_high[ipt],1,20,"eo");
-	    // mh1hist_like[ihist][ipt]=(TH1F *)mh2hist_like_pass[0]->ProjectionY(buf,ptBinX_low[ipt],ptBinX_high[ipt],"eo");
+	    mh1hist_like[ihist][ipt]=(TH1F *) mh3hist_like_partnernSigmaE_pt[0]->ProjectionX(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],1,20,"eo");
+	    // mh1hist_like[ihist][ipt]=(TH1F *)mh2hist_like_pass[0]->ProjectionY(buf,ptBinX_low_HT[ipt],ptBinX_high_HT[ipt],"eo");
  	    // sprintf(buf,"mass_unlike_like%ihist%ipt",ihist,ipt);
 	    sprintf(buf,"partnerNsigmaE_unlike_like%ihist%ipt",ihist,ipt);
 	    mh1hist_unlike_like[ihist][ipt]=(TH1F *)mh1hist_unlike[ihist][ipt]->Clone(buf);
@@ -254,7 +323,7 @@ void BEMC_efficiency()
 	mh1hist_unlike[ihist][ipt]->SetLineColor(1);
 	mh1hist_like[ihist][ipt]->SetLineColor(2);
 	mh1hist_unlike_like[ihist][ipt]->SetLineColor(3);	
-	mh1hist_unlike[ihist][ipt]->SetTitle(mh1_pT_Title[ipt]);
+	mh1hist_unlike[ihist][ipt]->SetTitle(mh1_pT_Title_HT[ipt]);
 	mh1hist_unlike[ihist][ipt]->Draw();
 	mh1hist_like[ihist][ipt]->Draw("same");
 	mh1hist_unlike_like[ihist][ipt]->Draw("same");

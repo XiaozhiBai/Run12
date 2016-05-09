@@ -21,6 +21,11 @@ void Draw_efficiency(TH1F *);
 void Tracking_efficiency()
 {
 
+TH3F::SetDefaultSumw2();  
+  TH2F::SetDefaultSumw2();  
+  TH1F::SetDefaultSumw2();  
+  
+  
   TH1F * mh1Track_noCut;
   TH1F * mh1Track_Cut20;
   TH1F * mh1Track_Cut25;
@@ -31,6 +36,7 @@ void Tracking_efficiency()
   TH1F * mh1Track_MC20= (TH1F *) inFile->Get("mNTrack_cut");
   TH1F * mh1Track_MC25= (TH1F *) inFile->Get("mNTrack_cut_25");
 
+  
   TH1F * mh1_Track=(TH1F *) mh1Track_MC->Rebin(NpT_bins_run12_MB,"mh1_Track",pt_run12_MB);
   TH1F * mh1_Track_20Cut=(TH1F *) mh1Track_MC20->Rebin(NpT_bins_run12_MB,"mh1_Track_20Cut",pt_run12_MB);
   TH1F * mh1_Track_25Cut=(TH1F *) mh1Track_MC25->Rebin(NpT_bins_run12_MB,"mh1_Track_25Cut",pt_run12_MB);
@@ -41,6 +47,7 @@ void Tracking_efficiency()
   Tracking_Ef->Draw();
   Tracking_Ef_sys->Draw("same");
 
+  //  return;
   for(Int_t i=0;i<NpT_bins_run12_MB;i++)
     {
       Double_t x_20=0,y_20=0,y_err_20=0;
@@ -65,7 +72,7 @@ void Draw_efficiency(TH1F * efficiency)
   gStyle->SetOptStat(0);  
   TCanvas *c2=new TCanvas("c2","",800,600);
   c2->cd();
-  TH2F * hh=new TH2F("hh","",10,1,5,10,0,1);
+  TH2F * hh=new TH2F("hh","",10,0,5,10,0,1);
   hh->GetXaxis()->SetTitle("P_{T} GeV/c");
   hh->GetYaxis()->SetTitle("Tracking efficiency");
   

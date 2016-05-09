@@ -201,7 +201,7 @@ void Draw_effciency_Total( TH1F * const  PHE_RE_HT[],TH1F * const PHE_RE_MB[] )
   TCanvas *c2 = new TCanvas("c2"," Rhotonic_Re_eff",0,0,800,600);
   c2->cd(); 
   
-  TH2F * hh=new TH2F("hh","",100,2,10,100,0.2,1);
+  TH2F * hh=new TH2F("hh","",100,2,14,100,0.2,1);
   
   hh->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   hh->GetYaxis()->SetTitle(" #epsilon Photonic");
