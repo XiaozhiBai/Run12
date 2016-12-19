@@ -4,6 +4,7 @@
 *.d
 *.so
 *.png
+*.root
 *.pdf
 *.png
 Log*
@@ -12,6 +13,8 @@ Log*
 *~
 *pcm
 *dat
+*.list
+*/*.list	
 temp_gccflags.c
 .consign
 .sl64_gcc447
@@ -22,3 +25,4 @@ Npefile.list
 temp_bk/*
 logtest
 README.md
+*RootFile*

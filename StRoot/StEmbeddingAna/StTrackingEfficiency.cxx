@@ -41,9 +41,16 @@ void StTrackingEfficiency::bookHistogram()
   mNTrack_cut=new TH1F("mNTrack_cut","mNTrack_cut",1000,0,20);
   mNTrack_cut_25=new TH1F("mNTrack_cut_25","mNTrack_cut_25",1000,0,20);
 
+  mMonmentumSmear_rc=new TH1F("mMonmentumSmear_rc","",1000,0,20);
+  mMonmentumSmear_mc=new TH1F("mMonmentumSmear_mc","",1000,0,20);
+
+  
   mNTrack_nocuts->Sumw2();
   mNTrack_cut->Sumw2();
   mNTrack_cut_25->Sumw2();
+
+  mMonmentumSmear_rc->Sumw2();
+  mMonmentumSmear_mc->Sumw2();
 
   // for BEMC efficiency sys
   mNBEMC_nocuts=new TH1F("mNBEMC_nocuts","mNBEMC_nocuts",1000,0,20);
@@ -92,6 +99,10 @@ void StTrackingEfficiency::read(TString fileName)
       if(tracksMC->dca<1.5 && tracksMC->nfit>20 && tracksMC->nDedxPts>15 && tracksMC->nfit/(Float_t)tracksMC->nmax > 0.52 && sqrt(tracksMC->stpcx*tracksMC->stpcx+tracksMC->stpcy*tracksMC->stpcy)<73 && 0<tracksMC->rpt && abs(tracksMC->eta)<0.7&&(tracksMC->geantId==2||tracksMC->geantId==3))
 	{
 	  mNTrack_cut->Fill(tracksMC->pt,weight);
+	  mMonmentumSmear_rc->Fill(tracksMC->rpt,weight);
+	  mMonmentumSmear_mc->Fill(tracksMC->pt,weight);
+
+	  
 	  if(tracksMC->nfit>25)
 	    {	
 	      mNTrack_cut_25->Fill(tracksMC->pt,weight);
@@ -115,6 +126,8 @@ void StTrackingEfficiency::WriteHistogram()
   mNTrack_nocuts->Write();
   mNTrack_cut->Write();
   mNTrack_cut_25->Write(); 
+  mMonmentumSmear_rc->Write();
+  mMonmentumSmear_mc->Write();
 
   mNBEMC_nocuts->Write();
   mNBEMC_cut->Write();
